@@ -1,2 +1,8 @@
 .agents/
 .codex/
+.nextflow*
+work/
+results/
+*.log
+__pycache__/
+*.py[cod]
