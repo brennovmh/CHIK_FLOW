@@ -11,7 +11,7 @@ workflow CHIKFLOW {
     main:
     ch_versions = Channel.empty()
 
-    VALIDATE_SAMPLESHEET(file(params.input, checkIfExists: true))
+    VALIDATE_SAMPLESHEET(file(params.input, checkIfExists: true).toAbsolutePath().toString())
     ch_versions = ch_versions.mix(VALIDATE_SAMPLESHEET.out.versions)
 
     VALIDATE_SAMPLESHEET.out.validated_samplesheet

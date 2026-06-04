@@ -17,9 +17,11 @@ def clean_sample_name(sample):
     return sample
 
 
-def validate_fastq(path, row_number, column):
+def validate_fastq(path, row_number, column, base_dir):
     if not path:
         return ""
+    if not os.path.isabs(path):
+        path = os.path.join(base_dir, path)
     if not path.endswith((".fastq.gz", ".fq.gz", ".fastq", ".fq")):
         raise ValueError(f"Row {row_number}: {column} is not a FASTQ file: {path}")
     if not os.path.exists(path):
@@ -34,6 +36,7 @@ def main():
     args = parser.parse_args()
 
     rows = []
+    samplesheet_dir = os.path.dirname(os.path.abspath(args.input))
     with open(args.input, newline="") as handle:
         reader = csv.DictReader(handle)
         if reader.fieldnames != REQUIRED_COLUMNS:
@@ -47,8 +50,12 @@ def main():
             if not sample:
                 raise ValueError(f"Row {index}: sample is empty")
 
-            fastq_1 = validate_fastq(row["fastq_1"].strip(), index, "fastq_1")
-            fastq_2 = validate_fastq(row["fastq_2"].strip(), index, "fastq_2")
+            fastq_1 = validate_fastq(
+                row["fastq_1"].strip(), index, "fastq_1", samplesheet_dir
+            )
+            fastq_2 = validate_fastq(
+                row["fastq_2"].strip(), index, "fastq_2", samplesheet_dir
+            )
             single_end = "true" if not fastq_2 else "false"
 
             rows.append(

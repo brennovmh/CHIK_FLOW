@@ -5,7 +5,7 @@ process VALIDATE_SAMPLESHEET {
     publishDir "${params.outdir}/pipeline_info", mode: params.publish_dir_mode
 
     input:
-    path samplesheet
+    val samplesheet
 
     output:
     path "validated_samplesheet.csv", emit: validated_samplesheet
@@ -13,8 +13,8 @@ process VALIDATE_SAMPLESHEET {
 
     script:
     """
-    validate_samplesheet.py \\
-        --input "$samplesheet" \\
+    validate_samplesheet.py \
+        --input "$samplesheet" \
         --output validated_samplesheet.csv
 
     cat > versions.yml <<-END_VERSIONS
