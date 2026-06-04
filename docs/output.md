@@ -7,6 +7,7 @@
 ├── batch_qc/
 │   └── multiqc/
 ├── pipeline_info/
+├── reference_panel/
 └── <sample_id>/
     ├── fastq/
     │   └── trimmed/
@@ -47,6 +48,12 @@
 - `pipeline_info/execution_trace.txt`
 - `pipeline_info/pipeline_dag.html`
 - `pipeline_info/software_versions.yml`
+
+### Reference Panel
+
+- `reference_panel/reference.fasta`
+- `reference_panel/reference.gff`
+- `reference_panel/reference_panel.csv`
 
 ## Planned Output Additions
 

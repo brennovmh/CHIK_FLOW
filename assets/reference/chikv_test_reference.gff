@@ -1,0 +1,3 @@
+##gff-version 3
+CHIKV_TEST_REFERENCE	CHIK_FLOW	region	1	53	.	+	.	ID=CHIKV_TEST_REFERENCE;Name=synthetic_test_reference
+CHIKV_TEST_REFERENCE	CHIK_FLOW	gene	1	53	.	+	.	ID=test_gene;Name=test_gene

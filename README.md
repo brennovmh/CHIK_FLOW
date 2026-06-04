@@ -48,7 +48,9 @@ name. CHIK-FLOW will merge them before analysis.
 nextflow run . \
   -profile docker \
   --input samplesheet.csv \
-  --outdir results
+  --outdir results \
+  --reference_fasta references/chikv_panel.fasta \
+  --reference_gff references/chikv_panel.gff
 ```
 
 Run a lightweight configuration check:
@@ -66,6 +68,7 @@ Current outputs:
 ├── batch_qc/
 │   └── multiqc/
 ├── pipeline_info/
+├── reference_panel/
 └── <sample>/
     ├── fastq/
     │   └── trimmed/
@@ -76,6 +79,15 @@ Current outputs:
         └── fastqc/
             ├── post_trim/
             └── pre_trim/
+```
+
+Reference panel preparation currently validates FASTA records, optional GFF
+seqids, and writes:
+
+```text
+reference_panel/reference.fasta
+reference_panel/reference.gff
+reference_panel/reference_panel.csv
 ```
 
 Future outputs will add:

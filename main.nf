@@ -16,10 +16,15 @@ workflow {
           --input    CSV samplesheet with columns: sample,fastq_1,fastq_2
           --outdir   Output directory
 
+        Reference arguments:
+          --reference_fasta  FASTA reference panel used by downstream CHIKV modules
+          --reference_gff    Optional GFF annotation for reference panel records
+
         Optional arguments:
           --skip_fastqc   Skip FastQC before and after trimming
           --skip_fastp    Skip fastp trimming
           --skip_multiqc  Skip MultiQC aggregation
+          --skip_reference_prep  Skip reference panel validation
         """.stripIndent()
         return
     }
@@ -29,6 +34,9 @@ workflow {
     }
     if (!params.outdir) {
         error "Missing required parameter: --outdir"
+    }
+    if (!params.skip_reference_prep && !params.reference_fasta) {
+        error "Missing required parameter: --reference_fasta"
     }
 
     CHIKFLOW()
