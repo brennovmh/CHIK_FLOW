@@ -9,6 +9,7 @@ include { MULTIQC             } from '../modules/local/multiqc'
 include { VALIDATE_REFERENCE_PANEL } from '../modules/local/validate_reference_panel'
 include { BWA_ALIGN           } from '../modules/local/bwa_align'
 include { SAMTOOLS_BAM_STATS  } from '../modules/local/samtools_bam_stats'
+include { SAMTOOLS_DEPTH      } from '../modules/local/samtools_depth'
 
 workflow CHIKFLOW {
     main:
@@ -85,6 +86,11 @@ workflow CHIKFLOW {
 
         SAMTOOLS_BAM_STATS(BWA_ALIGN.out.sam)
         ch_versions = ch_versions.mix(SAMTOOLS_BAM_STATS.out.versions)
+
+        if (!params.skip_coverage) {
+            SAMTOOLS_DEPTH(SAMTOOLS_BAM_STATS.out.bam)
+            ch_versions = ch_versions.mix(SAMTOOLS_DEPTH.out.versions)
+        }
     }
 
     ch_versions

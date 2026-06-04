@@ -55,6 +55,10 @@
         "skip_alignment": {
           "type": "boolean",
           "description": "Skip BWA-MEM alignment and BAM processing."
+        },
+        "skip_coverage": {
+          "type": "boolean",
+          "description": "Skip per-base depth and coverage summary."
         }
       }
     }

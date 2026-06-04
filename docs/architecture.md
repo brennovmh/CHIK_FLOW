@@ -17,6 +17,7 @@ samplesheet
   -> validate reference panel
   -> align reads to reference with BWA-MEM
   -> sort/index BAM and collect mapping stats
+  -> compute per-base depth and genome coverage summary
 ```
 
 ## Target Workflow
@@ -28,7 +29,7 @@ FASTQ
   -> best reference selection
   -> alignment
   -> BAM sort/index/stats
-  -> per-base depth
+  -> per-base depth and genome coverage
   -> per-gene coverage
   -> consensus FASTA
   -> nucleotide variants

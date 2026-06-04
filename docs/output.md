@@ -12,6 +12,7 @@
     ├── fastq/
     │   └── trimmed/
     ├── bam/
+    ├── coverage/
     ├── log/
     │   └── fastp/
     └── qc/
@@ -44,6 +45,11 @@
 - `<sample_id>/bam/*.flagstat.txt`
 - `<sample_id>/bam/*.idxstats.txt`
 
+### Coverage
+
+- `<sample_id>/coverage/*.depth.tsv`
+- `<sample_id>/coverage/*.coverage_summary.csv`
+
 ### MultiQC
 
 - `batch_qc/multiqc/multiqc_report.html`
@@ -65,7 +71,6 @@
 
 ## Planned Output Additions
 
-- `<sample_id>/coverage/*.depth.tsv`
 - `<sample_id>/coverage/*.gene_coverage.csv`
 - `<sample_id>/assembly/*.consensus.fasta`
 - `<sample_id>/variant_calling/*.variants.csv`
