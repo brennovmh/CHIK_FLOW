@@ -18,6 +18,7 @@ samplesheet
   -> align reads to reference with BWA-MEM
   -> sort/index BAM and collect mapping stats
   -> compute per-base depth and genome coverage summary
+  -> call variants and generate masked consensus FASTA
 ```
 
 ## Target Workflow

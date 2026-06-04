@@ -59,6 +59,15 @@
         "skip_coverage": {
           "type": "boolean",
           "description": "Skip per-base depth and coverage summary."
+        },
+        "skip_consensus": {
+          "type": "boolean",
+          "description": "Skip variant calling and consensus FASTA generation."
+        },
+        "min_consensus_depth": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Minimum depth required to keep a consensus base unmasked."
         }
       }
     }

@@ -9,10 +9,12 @@
 ├── pipeline_info/
 ├── reference_panel/
 └── <sample_id>/
+    ├── assembly/
     ├── fastq/
     │   └── trimmed/
     ├── bam/
     ├── coverage/
+    ├── variant_calling/
     ├── log/
     │   └── fastp/
     └── qc/
@@ -50,6 +52,13 @@
 - `<sample_id>/coverage/*.depth.tsv`
 - `<sample_id>/coverage/*.coverage_summary.csv`
 
+### Consensus and Variants
+
+- `<sample_id>/assembly/*.consensus.fasta`
+- `<sample_id>/assembly/*.low_coverage.bed`
+- `<sample_id>/variant_calling/*.variants.vcf.gz`
+- `<sample_id>/variant_calling/*.variants.vcf.gz.csi`
+
 ### MultiQC
 
 - `batch_qc/multiqc/multiqc_report.html`
@@ -72,7 +81,6 @@
 ## Planned Output Additions
 
 - `<sample_id>/coverage/*.gene_coverage.csv`
-- `<sample_id>/assembly/*.consensus.fasta`
 - `<sample_id>/variant_calling/*.variants.csv`
 - `<sample_id>/variant_calling/*.aa_mutations.csv`
 - `<sample_id>/genotyping/*.genotype.csv`
