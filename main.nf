@@ -27,6 +27,8 @@ workflow {
           --skip_reference_prep  Skip reference panel validation
           --skip_alignment  Skip BWA-MEM alignment and BAM processing
           --skip_coverage   Skip per-base depth and coverage summary
+          --skip_consensus  Skip variant calling and consensus FASTA generation
+          --min_consensus_depth  Minimum depth for unmasked consensus bases
         """.stripIndent()
         return
     }

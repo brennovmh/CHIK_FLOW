@@ -16,6 +16,7 @@ This repository currently contains the first executable foundation:
 - BWA-MEM alignment to validated CHIKV reference
 - sorted/indexed BAM with basic mapping statistics
 - per-base depth and basic genome coverage summary
+- consensus FASTA with low-depth masking
 - organized per-sample output directories
 
 ## Planned Scope
@@ -75,7 +76,9 @@ Current outputs:
     ├── fastq/
     │   └── trimmed/
     ├── bam/
+    ├── assembly/
     ├── coverage/
+    ├── variant_calling/
     ├── log/
     │   └── fastp/
     └── qc/
@@ -98,7 +101,6 @@ Future outputs will add:
 
 ```text
 <sample>/bam
-<sample>/assembly
 <sample>/variant_calling
 <sample>/genotyping
 <sample>/phylogeny_tree

@@ -10,6 +10,7 @@ include { VALIDATE_REFERENCE_PANEL } from '../modules/local/validate_reference_p
 include { BWA_ALIGN           } from '../modules/local/bwa_align'
 include { SAMTOOLS_BAM_STATS  } from '../modules/local/samtools_bam_stats'
 include { SAMTOOLS_DEPTH      } from '../modules/local/samtools_depth'
+include { BCFTOOLS_CONSENSUS } from '../modules/local/bcftools_consensus'
 
 workflow CHIKFLOW {
     main:
@@ -87,9 +88,15 @@ workflow CHIKFLOW {
         SAMTOOLS_BAM_STATS(BWA_ALIGN.out.sam)
         ch_versions = ch_versions.mix(SAMTOOLS_BAM_STATS.out.versions)
 
-        if (!params.skip_coverage) {
+        if (!params.skip_coverage || !params.skip_consensus) {
             SAMTOOLS_DEPTH(SAMTOOLS_BAM_STATS.out.bam)
             ch_versions = ch_versions.mix(SAMTOOLS_DEPTH.out.versions)
+        }
+
+        if (!params.skip_consensus) {
+            ch_bam_depth = SAMTOOLS_BAM_STATS.out.bam.join(SAMTOOLS_DEPTH.out.depth)
+            BCFTOOLS_CONSENSUS(ch_bam_depth, ch_reference_fasta)
+            ch_versions = ch_versions.mix(BCFTOOLS_CONSENSUS.out.versions)
         }
     }
 

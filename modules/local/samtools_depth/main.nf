@@ -47,7 +47,7 @@ process SAMTOOLS_DEPTH {
             breadth_10x = total_bases ? covered_10x / total_bases : 0
 
             print "sample_id,total_bases,covered_bases_1x,covered_bases_10x,mean_depth,breadth_1x,breadth_10x"
-            printf "%s,%d,%d,%d,%.4f,%.6f,%.6f\n", sample_id, total_bases, covered_1x, covered_10x, mean_depth, breadth_1x, breadth_10x
+            printf "%s,%d,%d,%d,%.4f,%.6f,%.6f\\n", sample_id, total_bases, covered_1x, covered_10x, mean_depth, breadth_1x, breadth_10x
         }
     ' ${meta.id}.depth.tsv > ${meta.id}.coverage_summary.csv
 
