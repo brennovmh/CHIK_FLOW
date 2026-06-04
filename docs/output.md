@@ -38,7 +38,7 @@
 ### MultiQC
 
 - `batch_qc/multiqc/multiqc_report.html`
-- `batch_qc/multiqc/multiqc_data/`
+- `batch_qc/multiqc/multiqc_report_data/`
 
 ### Pipeline Information
 

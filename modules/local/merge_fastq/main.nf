@@ -8,19 +8,26 @@ process MERGE_FASTQ {
     tuple val(meta), path(reads)
 
     output:
-    tuple val(meta), path("${meta.id}_R*.fastq.gz"), emit: reads
+    tuple val(meta), path("${meta.id}_merged_R*.fastq.gz"), emit: reads
     path "versions.yml", emit: versions
 
     script:
     def paired = meta.single_end ? false : true
-    def r1 = reads.findAll { it.name ==~ /.*(_R1|_1|R1).*\.f(ast)?q\.gz/ }
-    def r2 = reads.findAll { it.name ==~ /.*(_R2|_2|R2).*\.f(ast)?q\.gz/ }
+    def readNumber = { read ->
+        def matcher = read.name =~ /.*(?:^|[._-])R?([12])(?:[._-][0-9]+)?\.f(?:ast)?q\.gz$/
+        matcher ? matcher[0][1] : null
+    }
+    def r1 = reads.findAll { readNumber(it) == '1' }
+    def r2 = reads.findAll { readNumber(it) == '2' }
     def single = reads
 
     if (paired) {
+        if (!r1 || !r2) {
+            error "Could not identify paired FASTQ files for sample ${meta.id}"
+        }
         """
-        cat ${r1.join(' ')} > ${meta.id}_R1.fastq.gz
-        cat ${r2.join(' ')} > ${meta.id}_R2.fastq.gz
+        cat ${r1.join(' ')} > ${meta.id}_merged_R1.fastq.gz
+        cat ${r2.join(' ')} > ${meta.id}_merged_R2.fastq.gz
 
         cat > versions.yml <<-END_VERSIONS
         "${task.process}":
@@ -29,7 +36,7 @@ process MERGE_FASTQ {
         """
     } else {
         """
-        cat ${single.join(' ')} > ${meta.id}_R1.fastq.gz
+        cat ${single.join(' ')} > ${meta.id}_merged_R1.fastq.gz
 
         cat > versions.yml <<-END_VERSIONS
         "${task.process}":
