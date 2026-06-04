@@ -7,6 +7,8 @@ include { FASTQC as FASTQC_POST } from '../modules/local/fastqc'
 include { FASTP               } from '../modules/local/fastp'
 include { MULTIQC             } from '../modules/local/multiqc'
 include { VALIDATE_REFERENCE_PANEL } from '../modules/local/validate_reference_panel'
+include { MINIMAP2_ALIGN      } from '../modules/local/minimap2_align'
+include { SAMTOOLS_BAM_STATS  } from '../modules/local/samtools_bam_stats'
 
 workflow CHIKFLOW {
     main:
@@ -64,14 +66,25 @@ workflow CHIKFLOW {
         ch_versions = ch_versions.mix(FASTQC_POST.out.versions)
     }
 
-    if (!params.skip_reference_prep) {
-        def reference_fasta = file(params.reference_fasta, checkIfExists: true).toAbsolutePath().toString()
-        def reference_gff = params.reference_gff
-            ? file(params.reference_gff, checkIfExists: true).toAbsolutePath().toString()
-            : null
+    def reference_fasta = file(params.reference_fasta, checkIfExists: true).toAbsolutePath().toString()
+    def reference_gff = params.reference_gff
+        ? file(params.reference_gff, checkIfExists: true).toAbsolutePath().toString()
+        : null
 
+    if (!params.skip_reference_prep) {
         VALIDATE_REFERENCE_PANEL(reference_fasta, reference_gff)
+        ch_reference_fasta = VALIDATE_REFERENCE_PANEL.out.fasta
         ch_versions = ch_versions.mix(VALIDATE_REFERENCE_PANEL.out.versions)
+    } else {
+        ch_reference_fasta = Channel.value(file(reference_fasta, checkIfExists: true))
+    }
+
+    if (!params.skip_alignment) {
+        MINIMAP2_ALIGN(ch_trimmed_reads, ch_reference_fasta)
+        ch_versions = ch_versions.mix(MINIMAP2_ALIGN.out.versions)
+
+        SAMTOOLS_BAM_STATS(MINIMAP2_ALIGN.out.sam)
+        ch_versions = ch_versions.mix(SAMTOOLS_BAM_STATS.out.versions)
     }
 
     ch_versions

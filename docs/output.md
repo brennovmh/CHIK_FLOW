@@ -11,6 +11,7 @@
 └── <sample_id>/
     ├── fastq/
     │   └── trimmed/
+    ├── bam/
     ├── log/
     │   └── fastp/
     └── qc/
@@ -36,6 +37,13 @@
 - `<sample_id>/qc/fastp/*.fastp.json`
 - `<sample_id>/log/fastp/*.fastp.log`
 
+### Alignment
+
+- `<sample_id>/bam/*.sorted.bam`
+- `<sample_id>/bam/*.sorted.bam.bai`
+- `<sample_id>/bam/*.flagstat.txt`
+- `<sample_id>/bam/*.idxstats.txt`
+
 ### MultiQC
 
 - `batch_qc/multiqc/multiqc_report.html`
@@ -57,8 +65,6 @@
 
 ## Planned Output Additions
 
-- `<sample_id>/bam/*.bam`
-- `<sample_id>/bam/*.bai`
 - `<sample_id>/coverage/*.depth.tsv`
 - `<sample_id>/coverage/*.gene_coverage.csv`
 - `<sample_id>/assembly/*.consensus.fasta`

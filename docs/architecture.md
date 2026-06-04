@@ -15,6 +15,8 @@ samplesheet
   -> FastQC post-trim
   -> MultiQC
   -> validate reference panel
+  -> align reads to reference with minimap2
+  -> sort/index BAM and collect mapping stats
 ```
 
 ## Target Workflow

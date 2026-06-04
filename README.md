@@ -13,6 +13,8 @@ This repository currently contains the first executable foundation:
 - fastp trimming/filtering
 - post-trim FastQC
 - batch MultiQC
+- minimap2 alignment to validated CHIKV reference
+- sorted/indexed BAM with basic mapping statistics
 - organized per-sample output directories
 
 ## Planned Scope
@@ -72,6 +74,7 @@ Current outputs:
 └── <sample>/
     ├── fastq/
     │   └── trimmed/
+    ├── bam/
     ├── log/
     │   └── fastp/
     └── qc/

@@ -51,6 +51,10 @@
         "skip_reference_prep": {
           "type": "boolean",
           "description": "Skip reference panel validation."
+        },
+        "skip_alignment": {
+          "type": "boolean",
+          "description": "Skip minimap2 alignment and BAM processing."
         }
       }
     }

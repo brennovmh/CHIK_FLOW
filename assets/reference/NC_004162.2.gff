@@ -1,0 +1,10 @@
+##gff-version 3
+#!gff-spec-version 1.21
+#!processor NCBI annotwriter
+##sequence-region NC_004162.2 1 11826
+##species https://www.ncbi.nlm.nih.gov/Taxonomy/Browser/wwwtax.cgi?id=37124
+NC_004162.2	RefSeq	region	1	11826	.	+	.	ID=NC_004162.2:1..11826;Dbxref=taxon:37124;gbkey=Src;isolation-source=originally isolated from a febrile patient%3B in this study the strain was passaged in Aedes albopticus C6/36 cell line;mol_type=genomic RNA;strain=S27-African prototype
+NC_004162.2	RefSeq	gene	77	7501	.	+	.	ID=gene-CHIKVgp1;Dbxref=GeneID:956309;Name=CHIKVgp1;gbkey=Gene;gene_biotype=protein_coding;locus_tag=CHIKVgp1
+NC_004162.2	RefSeq	CDS	77	7501	.	+	0	ID=cds-NP_690588.1;Parent=gene-CHIKVgp1;Dbxref=GenBank:NP_690588.1,GeneID:956309;Name=NP_690588.1;gbkey=CDS;locus_tag=CHIKVgp1;product=nonstructural polyprotein;protein_id=NP_690588.1
+NC_004162.2	RefSeq	gene	7567	11313	.	+	.	ID=gene-CHIKVgp2;Dbxref=GeneID:956308;Name=CHIKVgp2;gbkey=Gene;gene_biotype=protein_coding;locus_tag=CHIKVgp2
+NC_004162.2	RefSeq	CDS	7567	11313	.	+	0	ID=cds-NP_690589.2;Parent=gene-CHIKVgp2;Dbxref=GenBank:NP_690589.2,GeneID:956308;Name=NP_690589.2;gbkey=CDS;locus_tag=CHIKVgp2;product=structural polyprotein;protein_id=NP_690589.2
