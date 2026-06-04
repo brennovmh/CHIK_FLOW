@@ -16,6 +16,7 @@ This repository currently contains the first executable foundation:
 - BWA-MEM alignment to validated CHIKV reference
 - sorted/indexed BAM with basic mapping statistics
 - per-base depth and basic genome coverage summary
+- GFF-derived gene/CDS coverage summary
 - consensus FASTA with low-depth masking
 - organized per-sample output directories
 

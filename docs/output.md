@@ -51,6 +51,7 @@
 
 - `<sample_id>/coverage/*.depth.tsv`
 - `<sample_id>/coverage/*.coverage_summary.csv`
+- `<sample_id>/coverage/*.gene_coverage.csv`
 
 ### Consensus and Variants
 
@@ -80,7 +81,6 @@
 
 ## Planned Output Additions
 
-- `<sample_id>/coverage/*.gene_coverage.csv`
 - `<sample_id>/variant_calling/*.variants.csv`
 - `<sample_id>/variant_calling/*.aa_mutations.csv`
 - `<sample_id>/genotyping/*.genotype.csv`

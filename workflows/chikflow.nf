@@ -11,6 +11,7 @@ include { BWA_ALIGN           } from '../modules/local/bwa_align'
 include { SAMTOOLS_BAM_STATS  } from '../modules/local/samtools_bam_stats'
 include { SAMTOOLS_DEPTH      } from '../modules/local/samtools_depth'
 include { BCFTOOLS_CONSENSUS } from '../modules/local/bcftools_consensus'
+include { GENE_COVERAGE      } from '../modules/local/gene_coverage'
 
 workflow CHIKFLOW {
     main:
@@ -76,9 +77,13 @@ workflow CHIKFLOW {
     if (!params.skip_reference_prep) {
         VALIDATE_REFERENCE_PANEL(reference_fasta, reference_gff)
         ch_reference_fasta = VALIDATE_REFERENCE_PANEL.out.fasta
+        ch_reference_gff = VALIDATE_REFERENCE_PANEL.out.gff
         ch_versions = ch_versions.mix(VALIDATE_REFERENCE_PANEL.out.versions)
     } else {
         ch_reference_fasta = Channel.value(file(reference_fasta, checkIfExists: true))
+        if (reference_gff) {
+            ch_reference_gff = Channel.value(file(reference_gff, checkIfExists: true))
+        }
     }
 
     if (!params.skip_alignment) {
@@ -97,6 +102,11 @@ workflow CHIKFLOW {
             ch_bam_depth = SAMTOOLS_BAM_STATS.out.bam.join(SAMTOOLS_DEPTH.out.depth)
             BCFTOOLS_CONSENSUS(ch_bam_depth, ch_reference_fasta)
             ch_versions = ch_versions.mix(BCFTOOLS_CONSENSUS.out.versions)
+        }
+
+        if (!params.skip_coverage && reference_gff) {
+            GENE_COVERAGE(SAMTOOLS_DEPTH.out.depth, ch_reference_gff)
+            ch_versions = ch_versions.mix(GENE_COVERAGE.out.versions)
         }
     }
 
