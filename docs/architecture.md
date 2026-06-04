@@ -14,6 +14,7 @@ samplesheet
   -> fastp trimming/filtering
   -> FastQC post-trim
   -> MultiQC
+  -> validate reference panel
 ```
 
 ## Target Workflow

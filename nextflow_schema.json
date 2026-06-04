@@ -18,9 +18,19 @@
           "type": "string",
           "format": "directory-path",
           "description": "Output directory."
+        },
+        "reference_fasta": {
+          "type": "string",
+          "format": "file-path",
+          "description": "FASTA reference panel used by downstream CHIKV modules."
+        },
+        "reference_gff": {
+          "type": "string",
+          "format": "file-path",
+          "description": "Optional GFF annotation for reference panel records."
         }
       },
-      "required": ["input", "outdir"]
+      "required": ["input", "outdir", "reference_fasta"]
     },
     "skip_options": {
       "title": "Process skipping options",
@@ -37,6 +47,10 @@
         "skip_multiqc": {
           "type": "boolean",
           "description": "Skip MultiQC."
+        },
+        "skip_reference_prep": {
+          "type": "boolean",
+          "description": "Skip reference panel validation."
         }
       }
     }

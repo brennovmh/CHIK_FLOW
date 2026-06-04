@@ -6,6 +6,7 @@ include { FASTQC as FASTQC_PRE  } from '../modules/local/fastqc'
 include { FASTQC as FASTQC_POST } from '../modules/local/fastqc'
 include { FASTP               } from '../modules/local/fastp'
 include { MULTIQC             } from '../modules/local/multiqc'
+include { VALIDATE_REFERENCE_PANEL } from '../modules/local/validate_reference_panel'
 
 workflow CHIKFLOW {
     main:
@@ -61,6 +62,16 @@ workflow CHIKFLOW {
         FASTQC_POST(ch_trimmed_reads, 'post_trim')
         ch_multiqc_files = ch_multiqc_files.mix(FASTQC_POST.out.zip.map { meta, zip -> zip })
         ch_versions = ch_versions.mix(FASTQC_POST.out.versions)
+    }
+
+    if (!params.skip_reference_prep) {
+        def reference_fasta = file(params.reference_fasta, checkIfExists: true).toAbsolutePath().toString()
+        def reference_gff = params.reference_gff
+            ? file(params.reference_gff, checkIfExists: true).toAbsolutePath().toString()
+            : null
+
+        VALIDATE_REFERENCE_PANEL(reference_fasta, reference_gff)
+        ch_versions = ch_versions.mix(VALIDATE_REFERENCE_PANEL.out.versions)
     }
 
     ch_versions
