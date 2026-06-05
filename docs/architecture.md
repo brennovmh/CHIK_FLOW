@@ -35,7 +35,7 @@ FASTQ
   -> per-base depth and genome coverage
   -> per-gene coverage
   -> consensus FASTA
-  -> nucleotide variants
+  -> nucleotide variants and readable variant CSV table
   -> amino-acid variants by ORF/protein
   -> genotype/lineage assignment
   -> phylogenetic tree

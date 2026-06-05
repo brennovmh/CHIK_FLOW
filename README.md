@@ -18,6 +18,7 @@ This repository currently contains the first executable foundation:
 - per-base depth and basic genome coverage summary
 - GFF-derived gene/CDS coverage summary
 - consensus FASTA with low-depth masking
+- nucleotide variant CSV table
 - per-sample CSV summary across mapping, coverage, consensus, and variants
 - organized per-sample output directories
 
@@ -104,7 +105,6 @@ Future outputs will add:
 
 ```text
 <sample>/bam
-<sample>/variant_calling
 <sample>/genotyping
 <sample>/phylogeny_tree
 batch_reports

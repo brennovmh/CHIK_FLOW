@@ -13,6 +13,7 @@ include { SAMTOOLS_DEPTH      } from '../modules/local/samtools_depth'
 include { BCFTOOLS_CONSENSUS } from '../modules/local/bcftools_consensus'
 include { GENE_COVERAGE      } from '../modules/local/gene_coverage'
 include { SAMPLE_SUMMARY     } from '../modules/local/sample_summary'
+include { VARIANT_TABLE      } from '../modules/local/variant_table'
 
 workflow CHIKFLOW {
     main:
@@ -103,6 +104,9 @@ workflow CHIKFLOW {
             ch_bam_depth = SAMTOOLS_BAM_STATS.out.bam.join(SAMTOOLS_DEPTH.out.depth)
             BCFTOOLS_CONSENSUS(ch_bam_depth, ch_reference_fasta)
             ch_versions = ch_versions.mix(BCFTOOLS_CONSENSUS.out.versions)
+
+            VARIANT_TABLE(BCFTOOLS_CONSENSUS.out.variants)
+            ch_versions = ch_versions.mix(VARIANT_TABLE.out.versions)
         }
 
         if (!params.skip_coverage && reference_gff) {
