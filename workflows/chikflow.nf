@@ -12,6 +12,7 @@ include { SAMTOOLS_BAM_STATS  } from '../modules/local/samtools_bam_stats'
 include { SAMTOOLS_DEPTH      } from '../modules/local/samtools_depth'
 include { BCFTOOLS_CONSENSUS } from '../modules/local/bcftools_consensus'
 include { GENE_COVERAGE      } from '../modules/local/gene_coverage'
+include { SAMPLE_SUMMARY     } from '../modules/local/sample_summary'
 
 workflow CHIKFLOW {
     main:
@@ -107,6 +108,19 @@ workflow CHIKFLOW {
         if (!params.skip_coverage && reference_gff) {
             GENE_COVERAGE(SAMTOOLS_DEPTH.out.depth, ch_reference_gff)
             ch_versions = ch_versions.mix(GENE_COVERAGE.out.versions)
+        }
+
+        if (!params.skip_coverage && !params.skip_consensus && reference_gff) {
+            ch_sample_summary_inputs = SAMTOOLS_BAM_STATS.out.flagstat
+                .join(SAMTOOLS_BAM_STATS.out.idxstats)
+                .join(SAMTOOLS_DEPTH.out.summary)
+                .join(GENE_COVERAGE.out.gene_coverage)
+                .join(BCFTOOLS_CONSENSUS.out.consensus)
+                .join(BCFTOOLS_CONSENSUS.out.low_coverage)
+                .join(BCFTOOLS_CONSENSUS.out.variants)
+
+            SAMPLE_SUMMARY(ch_sample_summary_inputs)
+            ch_versions = ch_versions.mix(SAMPLE_SUMMARY.out.versions)
         }
     }
 

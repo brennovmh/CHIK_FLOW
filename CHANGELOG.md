@@ -7,3 +7,4 @@
 - Added lane merging.
 - Added FastQC, fastp, and MultiQC modules.
 - Added initial README and output documentation.
+- Added per-sample summary CSV generation.

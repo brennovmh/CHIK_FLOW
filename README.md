@@ -18,6 +18,7 @@ This repository currently contains the first executable foundation:
 - per-base depth and basic genome coverage summary
 - GFF-derived gene/CDS coverage summary
 - consensus FASTA with low-depth masking
+- per-sample CSV summary across mapping, coverage, consensus, and variants
 - organized per-sample output directories
 
 ## Planned Scope
@@ -79,6 +80,7 @@ Current outputs:
     ├── bam/
     ├── assembly/
     ├── coverage/
+    ├── summary/
     ├── variant_calling/
     ├── log/
     │   └── fastp/

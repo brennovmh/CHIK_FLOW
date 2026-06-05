@@ -14,6 +14,7 @@
     │   └── trimmed/
     ├── bam/
     ├── coverage/
+    ├── summary/
     ├── variant_calling/
     ├── log/
     │   └── fastp/
@@ -52,6 +53,10 @@
 - `<sample_id>/coverage/*.depth.tsv`
 - `<sample_id>/coverage/*.coverage_summary.csv`
 - `<sample_id>/coverage/*.gene_coverage.csv`
+
+### Summary
+
+- `<sample_id>/summary/*.summary.csv`
 
 ### Consensus and Variants
 
