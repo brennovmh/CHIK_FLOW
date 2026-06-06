@@ -8,8 +8,7 @@ process AA_MUTATIONS {
     publishDir "${params.outdir}/${meta.id}/variant_calling", mode: params.publish_dir_mode
 
     input:
-    tuple val(meta), path(variants_vcf), path(variants_index)
-    path reference_fasta
+    tuple val(meta), path(variants_vcf), path(variants_index), path(reference_fasta)
     path reference_gff
 
     output:

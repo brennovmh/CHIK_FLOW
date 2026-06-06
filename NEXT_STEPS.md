@@ -2,174 +2,107 @@
 
 ## Current State
 
-The local checkout is synced with GitHub `main`. Use `git log --oneline -5`
-for the current commit history.
+The `main` branch is an executable Nextflow DSL2 development pipeline for CHIKV
+short-read analysis.
 
-Latest implemented blocks:
+Implemented blocks:
 
-- Real CHIKV RefSeq reference: `NC_004162.2`
+- samplesheet validation and lane merging
+- FastQC, fastp, and MultiQC
+- reference FASTA/GFF validation
 - BWA-MEM alignment
 - sorted/indexed BAM and mapping stats
 - per-base depth and genome coverage summary
-- masked consensus FASTA with `bcftools`
 - GFF-derived gene/CDS coverage summary
-- per-sample summary CSV
+- masked consensus FASTA with `bcftools`
 - nucleotide variant CSV table
 - amino-acid mutation CSV table for CDS-overlapping variants
+- per-sample summary CSV
 - batch-level sample summary CSV
+- nearest-reference genotype/lineage assignment
+- batch consensus distance matrix and UPGMA Newick tree
+- batch HTML and PDF report
 
-The per-sample summary combines mapping stats, genome coverage, GFF feature
-coverage highlights, consensus metrics, low-coverage masking, and VCF record
-counts.
+## Validation Baseline
 
-Outputs:
-
-```text
-<sample>/summary/*.summary.csv
-<sample>/variant_calling/*.variants.csv
-<sample>/variant_calling/*.aa_mutations.csv
-batch_reports/sample_summary.csv
-```
-
-## Validation Already Completed
-
-Python syntax validation:
+Lightweight local checks:
 
 ```bash
 python3 -m py_compile \
   bin/aggregate_sample_summaries.py \
-  bin/vcf_to_aa_mutations.py \
-  bin/vcf_to_table.py \
-  bin/summarize_sample.py \
+  bin/assign_chikv_genotype.py \
+  bin/build_chikv_phylogeny.py \
   bin/calculate_gene_coverage.py \
+  bin/render_chikflow_report.py \
+  bin/select_reference.py \
+  bin/summarize_sample.py \
+  bin/validate_genotype_references.py \
   bin/validate_reference_panel.py \
-  bin/validate_samplesheet.py
-```
+  bin/validate_samplesheet.py \
+  bin/vcf_to_aa_mutations.py \
+  bin/vcf_to_table.py
 
-Nextflow help/config validation:
-
-```bash
 nextflow run . --help
 ```
 
-Focused Singularity test:
+Focused Docker smoke test:
 
 ```bash
-nextflow run . -profile test,singularity \
-  --outdir /tmp/chikflow-batch-test \
+nextflow run . \
+  -profile test,docker \
+  --outdir /tmp/chikflow-ci-test \
   --skip_fastqc \
   --skip_fastp \
   --skip_multiqc \
   --min_consensus_depth 1
 ```
 
-This Singularity run completed successfully and produced:
+Expected core outputs include:
 
 ```text
-/tmp/chikflow-batch-test/sample_1/summary/sample_1.summary.csv
-/tmp/chikflow-batch-test/sample_1/variant_calling/sample_1.variants.csv
-/tmp/chikflow-batch-test/sample_1/variant_calling/sample_1.aa_mutations.csv
-/tmp/chikflow-batch-test/batch_reports/sample_summary.csv
-```
-
-## Docker Status
-
-Docker is accessible in the current Codex session.
-
-Docker smoke test:
-
-```bash
-docker run --rm hello-world
-```
-
-Observed result:
-
-```text
-Hello from Docker!
-```
-
-Focused Docker test:
-
-```bash
-nextflow run . -profile test,docker \
-  --outdir /tmp/chikflow-batch-docker-test \
-  --skip_fastqc \
-  --skip_fastp \
-  --skip_multiqc \
-  --min_consensus_depth 1
-```
-
-This Docker run completed successfully and produced:
-
-```text
-/tmp/chikflow-batch-docker-test/sample_1/summary/sample_1.summary.csv
-/tmp/chikflow-batch-docker-test/sample_1/variant_calling/sample_1.variants.csv
-/tmp/chikflow-batch-docker-test/sample_1/variant_calling/sample_1.aa_mutations.csv
-/tmp/chikflow-batch-docker-test/batch_reports/sample_summary.csv
-```
-
-Note: the first Docker pipeline attempt reached `VARIANT_TABLE` but failed while
-pulling `python:3.12` due to a Docker Hub TLS handshake timeout. Re-running the
-test succeeded.
-
-For future full Docker checks:
-
-```bash
-nextflow run . -profile test,docker --outdir /tmp/chikflow-docker-test
-```
-
-Expected Docker test outputs include:
-
-```text
-/tmp/chikflow-docker-test/sample_1/bam/sample_1.sorted.bam
-/tmp/chikflow-docker-test/sample_1/bam/sample_1.flagstat.txt
-/tmp/chikflow-docker-test/sample_1/coverage/sample_1.depth.tsv
-/tmp/chikflow-docker-test/sample_1/coverage/sample_1.coverage_summary.csv
-/tmp/chikflow-docker-test/sample_1/coverage/sample_1.gene_coverage.csv
-/tmp/chikflow-docker-test/sample_1/summary/sample_1.summary.csv
-/tmp/chikflow-docker-test/sample_1/assembly/sample_1.consensus.fasta
-/tmp/chikflow-docker-test/sample_1/variant_calling/sample_1.variants.vcf.gz
+<outdir>/sample_1/bam/sample_1.sorted.bam
+<outdir>/sample_1/coverage/sample_1.depth.tsv
+<outdir>/sample_1/coverage/sample_1.coverage_summary.csv
+<outdir>/sample_1/coverage/sample_1.gene_coverage.csv
+<outdir>/sample_1/assembly/sample_1.consensus.fasta
+<outdir>/sample_1/variant_calling/sample_1.variants.vcf.gz
+<outdir>/sample_1/variant_calling/sample_1.variants.csv
+<outdir>/sample_1/variant_calling/sample_1.aa_mutations.csv
+<outdir>/sample_1/genotyping/sample_1.genotype.csv
+<outdir>/sample_1/reference_selection/sample_1.reference_selection.csv
+<outdir>/sample_1/summary/sample_1.summary.csv
+<outdir>/batch_reports/sample_summary.csv
+<outdir>/batch_reports/phylogeny/chikflow.phylogeny_metadata.csv
+<outdir>/batch_reports/phylogeny/chikflow.tree.nwk
+<outdir>/batch_reports/chikflow_report.html
+<outdir>/batch_reports/chikflow_report.pdf
 ```
 
 ## Recommended Next Implementation
 
-1. Add CHIKV genotype/lineage assignment.
-   - Define a curated genotype marker/reference strategy.
-   - Suggested output: `<sample>/genotyping/*.genotype.csv`.
+1. Expand and review the curated CHIKV genotype/reference FASTA.
+   - The initial panel includes West African, ECSA, IOL, Asian, and 181/25
+     vaccine-strain references.
+   - Add additional vaccine-like or outbreak references as they become
+     operationally relevant.
 
-2. Add phylogeny and final reporting.
-   - Build from consensus FASTA outputs and batch summaries.
-   - Suggested outputs: phylogeny tree files and `batch_reports/*.html` /
-     `batch_reports/*.pdf`.
+2. Improve best-reference selection.
+   - The current implementation uses exact read k-mer matching.
+   - Next improvements should add minimum score thresholds and clearer
+     low-confidence reporting.
 
-3. Update docs and tests after each block.
-   - Update `README.md`, `docs/output.md`, `docs/architecture.md`, and
-     `CHANGELOG.md`.
-   - Re-run the focused Singularity test and then Docker once available.
+3. Improve final reports.
+   - Add per-sample coverage plots and batch coverage heatmaps.
+   - Add richer mutation tables with gene/CDS context.
+   - Replace the current SVG summary with a publication-grade rendered tree.
 
-## Useful Commands
+4. Expand automated validation.
+   - Keep the focused CI smoke test fast.
+   - Add a scheduled or manually triggered full Docker run without skips.
+   - Add regression fixtures for genotype assignment and reference selection.
 
-Check repository state:
-
-```bash
-cd /home/brennovmh/CHIK_FLOW
-git status --short --branch
-git log --oneline --decorate -5
-```
-
-Run the focused Singularity test:
-
-```bash
-nextflow run . -profile test,singularity \
-  --outdir /tmp/chikflow-singularity-test \
-  --skip_fastqc \
-  --skip_fastp \
-  --skip_multiqc \
-  --min_consensus_depth 1
-```
-
-Run the Docker test:
-
-```bash
-nextflow run . -profile test,docker --outdir /tmp/chikflow-docker-test
-```
+5. Prepare the first release.
+   - Pin and document all runtime containers.
+   - Finalize the parameter schema and output contract.
+   - Run a pilot batch with real CHIKV data and compare against trusted
+     external results.

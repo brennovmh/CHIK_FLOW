@@ -7,6 +7,8 @@ include { FASTQC as FASTQC_POST } from '../modules/local/fastqc'
 include { FASTP               } from '../modules/local/fastp'
 include { MULTIQC             } from '../modules/local/multiqc'
 include { VALIDATE_REFERENCE_PANEL } from '../modules/local/validate_reference_panel'
+include { VALIDATE_GENOTYPE_REFERENCES } from '../modules/local/validate_genotype_references'
+include { SELECT_REFERENCE    } from '../modules/local/select_reference'
 include { BWA_ALIGN           } from '../modules/local/bwa_align'
 include { SAMTOOLS_BAM_STATS  } from '../modules/local/samtools_bam_stats'
 include { SAMTOOLS_DEPTH      } from '../modules/local/samtools_depth'
@@ -93,12 +95,19 @@ workflow CHIKFLOW {
         }
     }
 
-    ch_genotype_references = params.genotype_references
-        ? Channel.value(file(params.genotype_references, checkIfExists: true))
-        : ch_reference_fasta
+    if (params.genotype_references) {
+        VALIDATE_GENOTYPE_REFERENCES(file(params.genotype_references, checkIfExists: true))
+        ch_genotype_references = VALIDATE_GENOTYPE_REFERENCES.out.fasta
+        ch_versions = ch_versions.mix(VALIDATE_GENOTYPE_REFERENCES.out.versions)
+    } else {
+        ch_genotype_references = ch_reference_fasta
+    }
 
     if (!params.skip_alignment) {
-        BWA_ALIGN(ch_trimmed_reads, ch_reference_fasta)
+        SELECT_REFERENCE(ch_trimmed_reads, ch_reference_fasta)
+        ch_versions = ch_versions.mix(SELECT_REFERENCE.out.versions)
+
+        BWA_ALIGN(SELECT_REFERENCE.out.reads_reference)
         ch_versions = ch_versions.mix(BWA_ALIGN.out.versions)
 
         SAMTOOLS_BAM_STATS(BWA_ALIGN.out.sam)
@@ -111,14 +120,16 @@ workflow CHIKFLOW {
 
         if (!params.skip_consensus) {
             ch_bam_depth = SAMTOOLS_BAM_STATS.out.bam.join(SAMTOOLS_DEPTH.out.depth)
-            BCFTOOLS_CONSENSUS(ch_bam_depth, ch_reference_fasta)
+            ch_bam_depth_reference = ch_bam_depth.join(SELECT_REFERENCE.out.selected_reference)
+            BCFTOOLS_CONSENSUS(ch_bam_depth_reference)
             ch_versions = ch_versions.mix(BCFTOOLS_CONSENSUS.out.versions)
 
             VARIANT_TABLE(BCFTOOLS_CONSENSUS.out.variants)
             ch_versions = ch_versions.mix(VARIANT_TABLE.out.versions)
 
             if (reference_gff) {
-                AA_MUTATIONS(BCFTOOLS_CONSENSUS.out.variants, ch_reference_fasta, ch_reference_gff)
+                ch_variant_reference = BCFTOOLS_CONSENSUS.out.variants.join(SELECT_REFERENCE.out.selected_reference)
+                AA_MUTATIONS(ch_variant_reference, ch_reference_gff)
                 ch_versions = ch_versions.mix(AA_MUTATIONS.out.versions)
             }
 
@@ -163,7 +174,10 @@ workflow CHIKFLOW {
                 ch_report_genotypes = GENOTYPE.out.genotype
                     .map { meta, genotype -> genotype }
                     .collect()
-                FINAL_REPORT(BATCH_SUMMARY.out.sample_summary, ch_report_genotypes, PHYLOGENY.out.tree)
+                ch_report_gene_coverages = GENE_COVERAGE.out.gene_coverage
+                    .map { meta, gene_coverage -> gene_coverage }
+                    .collect()
+                FINAL_REPORT(BATCH_SUMMARY.out.sample_summary, ch_report_genotypes, PHYLOGENY.out.tree, PHYLOGENY.out.metadata, ch_report_gene_coverages)
                 ch_versions = ch_versions.mix(FINAL_REPORT.out.versions)
             }
         }

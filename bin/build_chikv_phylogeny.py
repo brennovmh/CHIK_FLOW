@@ -2,7 +2,30 @@
 
 import argparse
 import csv
+import re
 import sys
+
+
+SOURCE_ALIASES = {
+    "wild": "wild",
+    "wild-type": "wild",
+    "wild_type": "wild",
+    "wildtype": "wild",
+    "field": "wild",
+    "clinical": "wild",
+    "vaccine": "vaccine",
+    "vaccinal": "vaccine",
+    "vaccine-strain": "vaccine",
+    "vaccine_strain": "vaccine",
+    "live-attenuated": "vaccine",
+    "live_attenuated": "vaccine",
+}
+
+
+KNOWN_REFERENCE_LABELS = {
+    "NC_004162.2": ("ECSA", "S27-African-prototype", "wild"),
+    "AF369024": ("ECSA", "S27-African-prototype", "wild"),
+}
 
 
 def parse_fasta(path):
@@ -16,14 +39,48 @@ def parse_fasta(path):
                 continue
             if line.startswith(">"):
                 if current is not None:
-                    records.append((current.split()[0], "".join(chunks).upper()))
+                    records.append((current, "".join(chunks).upper()))
                 current = line[1:]
                 chunks = []
             else:
                 chunks.append(line)
     if current is not None:
-        records.append((current.split()[0], "".join(chunks).upper()))
+        records.append((current, "".join(chunks).upper()))
     return records
+
+
+def header_id(header):
+    return header.split()[0].split("|")[0]
+
+
+def normalize_source(value):
+    if not value:
+        return "unknown"
+    normalized = value.strip().lower().replace(" ", "_")
+    return SOURCE_ALIASES.get(normalized, "unknown")
+
+
+def header_metadata(header):
+    metadata = {}
+    for item in header.replace(";", "|").split("|")[1:]:
+        if "=" in item:
+            key, value = item.split("=", 1)
+            metadata[key.strip().lower()] = value.strip()
+    accession = header_id(header)
+    if accession in KNOWN_REFERENCE_LABELS:
+        genotype, lineage, source = KNOWN_REFERENCE_LABELS[accession]
+        metadata.setdefault("genotype", genotype)
+        metadata.setdefault("lineage", lineage)
+        metadata.setdefault("source", source)
+    metadata.setdefault("genotype", "unclassified")
+    metadata.setdefault("lineage", "unclassified")
+    metadata["source"] = normalize_source(metadata.get("source", "unknown"))
+    return metadata
+
+
+def safe_tree_label(name, source):
+    label = f"{name}__source-{source}"
+    return re.sub(r"[^A-Za-z0-9_.-]+", "_", label)
 
 
 def distance(left, right):
@@ -40,39 +97,86 @@ def distance(left, right):
     return mismatches / compared, compared
 
 
+def nearest_reference(sequence, references):
+    best = None
+    for reference in references:
+        current_distance, compared = distance(sequence, reference["sequence"])
+        candidate = {
+            "nearest_reference": reference["id"],
+            "nearest_distance": current_distance,
+            "compared_bases": compared,
+            "genotype": reference["genotype"],
+            "lineage": reference["lineage"],
+            "source": reference["source"],
+        }
+        if best is None or candidate["nearest_distance"] < best["nearest_distance"]:
+            best = candidate
+    if best is None:
+        return {
+            "nearest_reference": "",
+            "nearest_distance": "",
+            "compared_bases": 0,
+            "genotype": "unclassified",
+            "lineage": "unclassified",
+            "source": "unknown",
+        }
+    best["nearest_distance"] = f"{best['nearest_distance']:.6f}"
+    return best
+
+
 def write_alignment(records, output):
     with open(output, "w") as handle:
-        for name, sequence in records:
-            handle.write(f">{name}\n")
+        for record in records:
+            handle.write(f">{record['tree_label']}\n")
+            sequence = record["sequence"]
             for index in range(0, len(sequence), 80):
                 handle.write(sequence[index:index + 80] + "\n")
 
 
 def write_distance_matrix(records, output):
-    names = [name for name, sequence in records]
+    names = [record["tree_label"] for record in records]
     with open(output, "w", newline="") as handle:
         writer = csv.writer(handle)
         writer.writerow(["sample_id", *names])
-        for left_name, left_sequence in records:
-            row = [left_name]
-            for right_name, right_sequence in records:
-                row.append(f"{distance(left_sequence, right_sequence)[0]:.6f}")
+        for left in records:
+            row = [left["tree_label"]]
+            for right in records:
+                row.append(f"{distance(left['sequence'], right['sequence'])[0]:.6f}")
             writer.writerow(row)
+
+
+def write_metadata(records, output):
+    fieldnames = [
+        "tree_label",
+        "record_id",
+        "role",
+        "genotype",
+        "lineage",
+        "source",
+        "nearest_reference",
+        "nearest_distance",
+        "compared_bases",
+    ]
+    with open(output, "w", newline="") as handle:
+        writer = csv.DictWriter(handle, fieldnames=fieldnames)
+        writer.writeheader()
+        for record in records:
+            writer.writerow({field: record.get(field, "") for field in fieldnames})
 
 
 def upgma(records):
     if len(records) == 1:
-        return f"{records[0][0]}:0.000000;"
+        return f"{records[0]['tree_label']}:0.000000;"
 
     clusters = {
-        name: {
-            "members": [name],
+        record["tree_label"]: {
+            "members": [record["tree_label"]],
             "height": 0.0,
-            "newick": name,
+            "newick": record["tree_label"],
         }
-        for name, sequence in records
+        for record in records
     }
-    sequences = {name: sequence for name, sequence in records}
+    sequences = {record["tree_label"]: record["sequence"] for record in records}
 
     def cluster_distance(left, right):
         values = []
@@ -116,31 +220,62 @@ def main():
     parser.add_argument("--reference")
     parser.add_argument("--alignment", required=True)
     parser.add_argument("--distances", required=True)
+    parser.add_argument("--metadata", required=True)
     parser.add_argument("--tree", required=True)
     args = parser.parse_args()
 
     records = []
+    references = []
     if args.reference:
-        records.extend(parse_fasta(args.reference))
+        for header, sequence in parse_fasta(args.reference):
+            metadata = header_metadata(header)
+            record_id = header_id(header)
+            reference = {
+                "record_id": record_id,
+                "id": record_id,
+                "role": "reference",
+                "genotype": metadata["genotype"],
+                "lineage": metadata["lineage"],
+                "source": metadata["source"],
+                "nearest_reference": record_id,
+                "nearest_distance": "0.000000",
+                "compared_bases": len(sequence),
+                "sequence": sequence,
+            }
+            references.append(reference)
+            records.append(reference)
     for path in args.consensus:
-        records.extend(parse_fasta(path))
+        for header, sequence in parse_fasta(path):
+            record_id = header_id(header)
+            inferred = nearest_reference(sequence, references)
+            records.append(
+                {
+                    "record_id": record_id,
+                    "role": "sample",
+                    "sequence": sequence,
+                    **inferred,
+                }
+            )
 
     deduplicated = []
     seen = set()
-    for name, sequence in records:
-        unique_name = name
+    for record in records:
+        base_label = safe_tree_label(record["record_id"], record["source"])
+        unique_name = base_label
         suffix = 1
         while unique_name in seen:
             suffix += 1
-            unique_name = f"{name}_{suffix}"
+            unique_name = f"{base_label}_{suffix}"
         seen.add(unique_name)
-        deduplicated.append((unique_name, sequence))
+        record["tree_label"] = unique_name
+        deduplicated.append(record)
 
     if not deduplicated:
         raise ValueError("No FASTA records were provided")
 
     write_alignment(deduplicated, args.alignment)
     write_distance_matrix(deduplicated, args.distances)
+    write_metadata(deduplicated, args.metadata)
     with open(args.tree, "w") as handle:
         handle.write(upgma(deduplicated) + "\n")
 

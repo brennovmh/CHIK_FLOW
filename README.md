@@ -67,14 +67,22 @@ nextflow run . \
 
 `--genotype_references` is optional. When omitted, CHIK-FLOW uses
 `--reference_fasta` as a fallback for nearest-reference comparison. For
-surveillance-grade genotype calls, provide a curated multi-record FASTA whose
-headers include labels such as `|genotype=ECSA|lineage=IOL`.
+surveillance-grade genotype and wild/vaccine calls, provide a curated
+multi-record FASTA whose headers include labels such as
+`|genotype=ECSA|lineage=IOL|source=wild` or
+`|genotype=Asian|lineage=vaccine-strain|source=vaccine`.
+An initial curated panel is provided at
+`assets/reference/chikv_genotype_references.fasta`; provenance and
+interpretation notes are documented in `docs/reference_panel.md`.
 
 Run a lightweight configuration check:
 
 ```bash
 nextflow run . --help
 ```
+
+Development checks and the focused Docker smoke test are documented in
+`docs/development.md`.
 
 ## Outputs
 
@@ -93,6 +101,7 @@ Current outputs:
     ├── bam/
     ├── assembly/
     ├── genotyping/
+    ├── reference_selection/
     ├── coverage/
     ├── summary/
     ├── variant_calling/
@@ -112,6 +121,8 @@ seqids, and writes:
 reference_panel/reference.fasta
 reference_panel/reference.gff
 reference_panel/reference_panel.csv
+reference_panel/genotype_references.fasta
+reference_panel/genotype_reference_panel.csv
 ```
 
 Batch reports include:
@@ -120,13 +131,15 @@ Batch reports include:
 batch_reports/sample_summary.csv
 batch_reports/chikflow_report.html
 batch_reports/chikflow_report.pdf
+batch_reports/chikflow_phylogeny.svg
 batch_reports/phylogeny/chikflow.alignment.fasta
 batch_reports/phylogeny/chikflow.distance_matrix.csv
+batch_reports/phylogeny/chikflow.phylogeny_metadata.csv
 batch_reports/phylogeny/chikflow.tree.nwk
 ```
 
 ## Development Status
 
-This is an executable development pipeline. Genotype assignment is implemented
-as nearest-reference comparison and is only as complete as the supplied curated
-genotype FASTA.
+This is an executable development pipeline. Genotype and wild/vaccine source
+assignment are implemented as nearest-reference comparisons and are only as
+complete as the supplied curated genotype FASTA.

@@ -32,7 +32,7 @@
         "genotype_references": {
           "type": "string",
           "format": "file-path",
-          "description": "Optional curated FASTA for nearest-reference genotype/lineage assignment. Headers may include genotype= and lineage= labels."
+          "description": "Optional curated FASTA for nearest-reference genotype/lineage and wild/vaccine source assignment. Headers must include genotype=, lineage=, and source=wild or source=vaccine labels."
         }
       },
       "required": ["input", "outdir", "reference_fasta"]

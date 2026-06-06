@@ -1,0 +1,116 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  smoke-test:
+    name: Python and Nextflow smoke test
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install Nextflow
+        env:
+          NXF_VER: "24.10.5"
+        run: |
+          curl -fsSL https://get.nextflow.io | bash
+          sudo mv nextflow /usr/local/bin/nextflow
+          nextflow -version
+
+      - name: Compile Python helper scripts
+        run: |
+          python -m py_compile \
+            bin/aggregate_sample_summaries.py \
+            bin/assign_chikv_genotype.py \
+            bin/build_chikv_phylogeny.py \
+            bin/calculate_gene_coverage.py \
+            bin/render_chikflow_report.py \
+            bin/select_reference.py \
+            bin/summarize_sample.py \
+            bin/validate_genotype_references.py \
+            bin/validate_reference_panel.py \
+            bin/validate_samplesheet.py \
+            bin/vcf_to_aa_mutations.py \
+            bin/vcf_to_table.py \
+            tests/test_biological_regression.py
+
+      - name: Run biological regression tests
+        run: python tests/test_biological_regression.py
+
+      - name: Validate bundled inputs
+        run: |
+          python bin/validate_samplesheet.py \
+            --input assets/samplesheet.csv \
+            --output /tmp/chikflow_validated_samplesheet.csv
+
+          python bin/validate_reference_panel.py \
+            --fasta assets/reference/NC_004162.2.fasta \
+            --gff assets/reference/NC_004162.2.gff \
+            --output /tmp/chikflow_reference_panel.csv
+
+      - name: Check Nextflow help
+        run: nextflow run . --help
+
+      - name: Run focused Docker pipeline test
+        run: |
+          cat > /tmp/chikflow_genotype_references.fasta <<'EOF'
+          >wild_ref|genotype=ECSA|lineage=example-wild|source=wild
+          ATGGCTGC
+          >vaccine_ref|genotype=Asian|lineage=example-vaccine|source=vaccine
+          ATGGCTGA
+          EOF
+
+          nextflow run . \
+            -profile test,docker \
+            --outdir /tmp/chikflow-ci-test \
+            --skip_fastqc \
+            --skip_fastp \
+            --skip_multiqc \
+            --genotype_references /tmp/chikflow_genotype_references.fasta \
+            --min_consensus_depth 1
+
+      - name: Check smoke test outputs
+        run: |
+          test -s /tmp/chikflow-ci-test/reference_panel/genotype_reference_panel.csv
+          test -s /tmp/chikflow-ci-test/sample_1/reference_selection/sample_1.reference_selection.csv
+          test -s /tmp/chikflow-ci-test/sample_1/bam/sample_1.sorted.bam
+          test -s /tmp/chikflow-ci-test/sample_1/coverage/sample_1.depth.tsv
+          test -s /tmp/chikflow-ci-test/sample_1/coverage/sample_1.coverage_summary.csv
+          test -s /tmp/chikflow-ci-test/sample_1/coverage/sample_1.gene_coverage.csv
+          test -s /tmp/chikflow-ci-test/sample_1/assembly/sample_1.consensus.fasta
+          test -s /tmp/chikflow-ci-test/sample_1/variant_calling/sample_1.variants.vcf.gz
+          test -s /tmp/chikflow-ci-test/sample_1/variant_calling/sample_1.variants.csv
+          test -s /tmp/chikflow-ci-test/sample_1/variant_calling/sample_1.aa_mutations.csv
+          test -s /tmp/chikflow-ci-test/sample_1/genotyping/sample_1.genotype.csv
+          test -s /tmp/chikflow-ci-test/sample_1/summary/sample_1.summary.csv
+          test -s /tmp/chikflow-ci-test/batch_reports/sample_summary.csv
+          test -s /tmp/chikflow-ci-test/batch_reports/phylogeny/chikflow.phylogeny_metadata.csv
+          test -s /tmp/chikflow-ci-test/batch_reports/phylogeny/chikflow.tree.nwk
+          test -s /tmp/chikflow-ci-test/batch_reports/chikflow_phylogeny.svg
+          test -s /tmp/chikflow-ci-test/batch_reports/chikflow_report.html
+          test -s /tmp/chikflow-ci-test/batch_reports/chikflow_report.pdf
+          grep -q ',vaccine,' /tmp/chikflow-ci-test/reference_panel/genotype_reference_panel.csv
+          grep -q ',true' /tmp/chikflow-ci-test/sample_1/reference_selection/sample_1.reference_selection.csv
+          grep -q '__source-vaccine' /tmp/chikflow-ci-test/batch_reports/phylogeny/chikflow.tree.nwk
+          grep -q 'sample_1__source-wild' /tmp/chikflow-ci-test/batch_reports/phylogeny/chikflow.tree.nwk
+          grep -q 'Batch Overview' /tmp/chikflow-ci-test/batch_reports/chikflow_report.html
+          grep -q 'Gene Coverage' /tmp/chikflow-ci-test/batch_reports/chikflow_report.html

@@ -10,6 +10,7 @@ FIELDNAMES = [
     "best_reference",
     "genotype",
     "lineage",
+    "source",
     "identity",
     "distance",
     "compared_bases",
@@ -20,8 +21,24 @@ FIELDNAMES = [
 
 
 KNOWN_REFERENCE_LABELS = {
-    "NC_004162.2": ("ECSA", "S27-African-prototype"),
-    "AF369024": ("ECSA", "S27-African-prototype"),
+    "NC_004162.2": ("ECSA", "S27-African-prototype", "wild"),
+    "AF369024": ("ECSA", "S27-African-prototype", "wild"),
+}
+
+
+SOURCE_ALIASES = {
+    "wild": "wild",
+    "wild-type": "wild",
+    "wild_type": "wild",
+    "wildtype": "wild",
+    "field": "wild",
+    "clinical": "wild",
+    "vaccine": "vaccine",
+    "vaccinal": "vaccine",
+    "vaccine-strain": "vaccine",
+    "vaccine_strain": "vaccine",
+    "live-attenuated": "vaccine",
+    "live_attenuated": "vaccine",
 }
 
 
@@ -60,10 +77,19 @@ def header_metadata(header):
             metadata[key.strip().lower()] = value.strip()
     accession = header_id(header)
     if accession in KNOWN_REFERENCE_LABELS:
-        genotype, lineage = KNOWN_REFERENCE_LABELS[accession]
+        genotype, lineage, source = KNOWN_REFERENCE_LABELS[accession]
         metadata.setdefault("genotype", genotype)
         metadata.setdefault("lineage", lineage)
+        metadata.setdefault("source", source)
+    metadata["source"] = normalize_source(metadata.get("source", "unknown"))
     return metadata
+
+
+def normalize_source(value):
+    if not value:
+        return "unknown"
+    normalized = value.strip().lower().replace(" ", "_")
+    return SOURCE_ALIASES.get(normalized, "unknown")
 
 
 def compare_sequences(query, reference):
@@ -112,6 +138,7 @@ def assign(sample_id, consensus, references):
             "best_reference": "",
             "genotype": "unassigned",
             "lineage": "unassigned",
+            "source": "unknown",
             "identity": "",
             "distance": "",
             "compared_bases": 0,
@@ -122,16 +149,22 @@ def assign(sample_id, consensus, references):
 
     genotype = best.get("genotype", "unclassified")
     lineage = best.get("lineage", "unclassified")
+    source = best.get("source", "unknown")
     status = "assigned" if genotype != "unclassified" else "nearest_reference_only"
     note = ""
     if len(references) == 1:
         note = "Only one genotype reference was available; assignment is nearest-reference only"
+    if source == "unknown":
+        note = "; ".join(
+            item for item in [note, "Nearest reference has no wild/vaccine source label"] if item
+        )
 
     return {
         "sample_id": sample_id,
         "best_reference": best["reference_id"],
         "genotype": genotype,
         "lineage": lineage,
+        "source": source,
         "identity": f"{best['identity']:.6f}",
         "distance": f"{best['distance']:.6f}",
         "compared_bases": best["compared_bases"],
