@@ -14,3 +14,4 @@
 - Added nearest-reference CHIKV genotype/lineage CSV output.
 - Added batch consensus distance matrix and UPGMA Newick tree output.
 - Added batch HTML/PDF report generation.
+- Added GitHub Actions smoke test documentation and workflow.
