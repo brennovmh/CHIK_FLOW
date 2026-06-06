@@ -28,6 +28,11 @@
           "type": "string",
           "format": "file-path",
           "description": "Optional GFF annotation for reference panel records."
+        },
+        "genotype_references": {
+          "type": "string",
+          "format": "file-path",
+          "description": "Optional curated FASTA for nearest-reference genotype/lineage assignment. Headers may include genotype= and lineage= labels."
         }
       },
       "required": ["input", "outdir", "reference_fasta"]
@@ -63,6 +68,18 @@
         "skip_consensus": {
           "type": "boolean",
           "description": "Skip variant calling and consensus FASTA generation."
+        },
+        "skip_genotyping": {
+          "type": "boolean",
+          "description": "Skip nearest-reference genotype/lineage assignment."
+        },
+        "skip_phylogeny": {
+          "type": "boolean",
+          "description": "Skip batch consensus distance tree generation."
+        },
+        "skip_report": {
+          "type": "boolean",
+          "description": "Skip final batch HTML/PDF report generation."
         },
         "min_consensus_depth": {
           "type": "integer",

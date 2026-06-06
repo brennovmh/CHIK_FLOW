@@ -11,3 +11,6 @@
 - Added nucleotide variant CSV table generation from VCF output.
 - Added amino-acid mutation CSV generation for CDS-overlapping variants.
 - Added batch-level sample summary CSV aggregation.
+- Added nearest-reference CHIKV genotype/lineage CSV output.
+- Added batch consensus distance matrix and UPGMA Newick tree output.
+- Added batch HTML/PDF report generation.

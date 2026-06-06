@@ -22,6 +22,9 @@ samplesheet
   -> call variants and generate masked consensus FASTA
   -> write per-sample mapping/coverage/consensus/variant summary CSV
   -> aggregate per-sample summaries into a batch sample summary CSV
+  -> assign nearest-reference genotype/lineage
+  -> build batch consensus distance tree
+  -> render batch HTML/PDF report
 ```
 
 ## Target Workflow
@@ -38,9 +41,9 @@ FASTQ
   -> consensus FASTA
   -> nucleotide variants and readable variant CSV table
   -> amino-acid variants for CDS-overlapping changes
-  -> genotype/lineage assignment
-  -> phylogenetic tree
-  -> sample and batch PDF/HTML reports
+  -> curated genotype/lineage assignment
+  -> phylogenetic tree and visualization
+  -> sample and batch PDF/HTML reports with plots
 ```
 
 ## CHIKV Regions for Coverage Reporting
@@ -65,17 +68,14 @@ global positions.
 
 ## Report Strategy
 
-The reporting layer will consume a per-sample manifest and produce:
+The current reporting layer consumes batch summary, genotype CSVs, and Newick
+tree output and produces:
 
-- `Report.csv`
-- `Consensus.fasta`
-- per-sample coverage plots
-- batch coverage heatmap
-- mutation tables
 - lineage/genotype summary
-- phylogenetic tree figures
 - HTML report
 - PDF report
 
-The implementation should remain data-driven so reference annotations and
-lineage panels can be updated without rewriting report logic.
+Future report work should add per-sample coverage plots, batch coverage
+heatmaps, richer mutation tables, and rendered tree figures. The implementation
+should remain data-driven so reference annotations and lineage panels can be
+updated without rewriting report logic.

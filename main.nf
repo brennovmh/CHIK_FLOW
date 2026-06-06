@@ -19,6 +19,7 @@ workflow {
         Reference arguments:
           --reference_fasta  FASTA reference panel used by downstream CHIKV modules
           --reference_gff    Optional GFF annotation for reference panel records
+          --genotype_references  Optional FASTA with genotype/lineage labels in headers
 
         Optional arguments:
           --skip_fastqc   Skip FastQC before and after trimming
@@ -28,6 +29,9 @@ workflow {
           --skip_alignment  Skip BWA-MEM alignment and BAM processing
           --skip_coverage   Skip per-base depth and coverage summary
           --skip_consensus  Skip variant calling and consensus FASTA generation
+          --skip_genotyping  Skip nearest-reference genotype/lineage assignment
+          --skip_phylogeny   Skip batch distance tree generation
+          --skip_report      Skip final batch HTML/PDF report
           --min_consensus_depth  Minimum depth for unmasked consensus bases
         """.stripIndent()
         return

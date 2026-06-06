@@ -9,12 +9,14 @@
 ├── pipeline_info/
 ├── reference_panel/
 ├── batch_reports/
+│   └── phylogeny/
 └── <sample_id>/
     ├── assembly/
     ├── fastq/
     │   └── trimmed/
     ├── bam/
     ├── coverage/
+    ├── genotyping/
     ├── summary/
     ├── variant_calling/
     ├── log/
@@ -59,6 +61,24 @@
 
 - `<sample_id>/summary/*.summary.csv`
 - `batch_reports/sample_summary.csv`
+- `batch_reports/chikflow_report.html`
+- `batch_reports/chikflow_report.pdf`
+
+### Genotyping
+
+- `<sample_id>/genotyping/*.genotype.csv`
+
+The genotyping CSV reports the nearest reference, genotype, lineage, identity,
+distance, comparable bases, ambiguous bases, status, and notes. If
+`--genotype_references` is not provided, the pipeline falls back to
+`--reference_fasta`; assignments from a single reference are marked in the note
+field as nearest-reference only.
+
+### Phylogeny
+
+- `batch_reports/phylogeny/chikflow.alignment.fasta`
+- `batch_reports/phylogeny/chikflow.distance_matrix.csv`
+- `batch_reports/phylogeny/chikflow.tree.nwk`
 
 ### Consensus and Variants
 
@@ -90,7 +110,5 @@
 
 ## Planned Output Additions
 
-- `<sample_id>/genotyping/*.genotype.csv`
-- `<sample_id>/phylogeny_tree/*.tre`
-- `batch_reports/*.html`
-- `batch_reports/*.pdf`
+- richer report plots
+- publication-grade tree rendering

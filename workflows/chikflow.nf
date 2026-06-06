@@ -16,6 +16,9 @@ include { SAMPLE_SUMMARY     } from '../modules/local/sample_summary'
 include { VARIANT_TABLE      } from '../modules/local/variant_table'
 include { AA_MUTATIONS       } from '../modules/local/aa_mutations'
 include { BATCH_SUMMARY      } from '../modules/local/batch_summary'
+include { GENOTYPE           } from '../modules/local/genotype'
+include { PHYLOGENY          } from '../modules/local/phylogeny'
+include { FINAL_REPORT       } from '../modules/local/final_report'
 
 workflow CHIKFLOW {
     main:
@@ -90,6 +93,10 @@ workflow CHIKFLOW {
         }
     }
 
+    ch_genotype_references = params.genotype_references
+        ? Channel.value(file(params.genotype_references, checkIfExists: true))
+        : ch_reference_fasta
+
     if (!params.skip_alignment) {
         BWA_ALIGN(ch_trimmed_reads, ch_reference_fasta)
         ch_versions = ch_versions.mix(BWA_ALIGN.out.versions)
@@ -113,6 +120,19 @@ workflow CHIKFLOW {
             if (reference_gff) {
                 AA_MUTATIONS(BCFTOOLS_CONSENSUS.out.variants, ch_reference_fasta, ch_reference_gff)
                 ch_versions = ch_versions.mix(AA_MUTATIONS.out.versions)
+            }
+
+            if (!params.skip_genotyping) {
+                GENOTYPE(BCFTOOLS_CONSENSUS.out.consensus, ch_genotype_references)
+                ch_versions = ch_versions.mix(GENOTYPE.out.versions)
+            }
+
+            if (!params.skip_phylogeny) {
+                ch_phylogeny_consensuses = BCFTOOLS_CONSENSUS.out.consensus
+                    .map { meta, consensus -> consensus }
+                    .collect()
+                PHYLOGENY(ch_phylogeny_consensuses, ch_genotype_references)
+                ch_versions = ch_versions.mix(PHYLOGENY.out.versions)
             }
         }
 
@@ -138,6 +158,14 @@ workflow CHIKFLOW {
                 .collect()
             BATCH_SUMMARY(ch_batch_summary_inputs)
             ch_versions = ch_versions.mix(BATCH_SUMMARY.out.versions)
+
+            if (!params.skip_report && !params.skip_genotyping && !params.skip_phylogeny) {
+                ch_report_genotypes = GENOTYPE.out.genotype
+                    .map { meta, genotype -> genotype }
+                    .collect()
+                FINAL_REPORT(BATCH_SUMMARY.out.sample_summary, ch_report_genotypes, PHYLOGENY.out.tree)
+                ch_versions = ch_versions.mix(FINAL_REPORT.out.versions)
+            }
         }
     }
 

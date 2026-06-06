@@ -22,6 +22,9 @@ This repository currently contains the first executable foundation:
 - amino-acid mutation CSV table for CDS-overlapping variants
 - per-sample CSV summary across mapping, coverage, consensus, and variants
 - batch-level sample summary CSV
+- nearest-reference CHIKV genotype/lineage CSV
+- batch consensus distance matrix and UPGMA Newick tree
+- batch HTML and PDF report
 - organized per-sample output directories
 
 ## Planned Scope
@@ -31,9 +34,9 @@ This repository currently contains the first executable foundation:
 - per-base depth and genome/gene coverage reports
 - consensus FASTA with configurable masking thresholds
 - nucleotide and amino-acid variant reporting
-- CHIKV genotype/lineage assignment
-- phylogenetic tree generation
-- batch and sample reports in CSV, HTML, and PDF
+- expanded curated CHIKV genotype reference panels
+- publication-grade phylogenetic tree rendering
+- richer sample-level report pages and plots
 
 ## Input
 
@@ -58,8 +61,14 @@ nextflow run . \
   --input samplesheet.csv \
   --outdir results \
   --reference_fasta references/chikv_panel.fasta \
-  --reference_gff references/chikv_panel.gff
+  --reference_gff references/chikv_panel.gff \
+  --genotype_references references/chikv_genotypes.fasta
 ```
+
+`--genotype_references` is optional. When omitted, CHIK-FLOW uses
+`--reference_fasta` as a fallback for nearest-reference comparison. For
+surveillance-grade genotype calls, provide a curated multi-record FASTA whose
+headers include labels such as `|genotype=ECSA|lineage=IOL`.
 
 Run a lightweight configuration check:
 
@@ -83,6 +92,7 @@ Current outputs:
     │   └── trimmed/
     ├── bam/
     ├── assembly/
+    ├── genotyping/
     ├── coverage/
     ├── summary/
     ├── variant_calling/
@@ -95,7 +105,7 @@ Current outputs:
             └── pre_trim/
 ```
 
-Reference panel preparation currently validates FASTA records, optional GFF
+Reference panel preparation validates FASTA records, optional GFF
 seqids, and writes:
 
 ```text
@@ -104,16 +114,19 @@ reference_panel/reference.gff
 reference_panel/reference_panel.csv
 ```
 
-Future outputs will add:
+Batch reports include:
 
 ```text
-<sample>/bam
-<sample>/genotyping
-<sample>/phylogeny_tree
+batch_reports/sample_summary.csv
+batch_reports/chikflow_report.html
+batch_reports/chikflow_report.pdf
+batch_reports/phylogeny/chikflow.alignment.fasta
+batch_reports/phylogeny/chikflow.distance_matrix.csv
+batch_reports/phylogeny/chikflow.tree.nwk
 ```
 
 ## Development Status
 
-This is an initial scaffold. The biological CHIKV-specific layers are planned
-but intentionally not stubbed as fake analysis. Each module will be added with
-test data and verifiable outputs.
+This is an executable development pipeline. Genotype assignment is implemented
+as nearest-reference comparison and is only as complete as the supplied curated
+genotype FASTA.
