@@ -1,6 +1,6 @@
 # CHIK-FLOW Next Steps
 
-## Current Status
+## Current State
 
 The local checkout is synced with GitHub `main`. Use `git log --oneline -5`
 for the current commit history.
