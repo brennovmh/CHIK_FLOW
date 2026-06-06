@@ -15,6 +15,7 @@ samplesheet
   -> FastQC post-trim
   -> MultiQC
   -> validate reference panel
+  -> select best reference per sample by read k-mer matching
   -> align reads to reference with BWA-MEM
   -> sort/index BAM and collect mapping stats
   -> compute per-base depth and genome coverage summary
@@ -22,8 +23,8 @@ samplesheet
   -> call variants and generate masked consensus FASTA
   -> write per-sample mapping/coverage/consensus/variant summary CSV
   -> aggregate per-sample summaries into a batch sample summary CSV
-  -> assign nearest-reference genotype/lineage
-  -> build batch consensus distance tree
+  -> assign nearest-reference genotype/lineage and wild/vaccine source
+  -> build batch consensus distance tree with wild/vaccine labels
   -> render batch HTML/PDF report
 ```
 
@@ -41,8 +42,8 @@ FASTQ
   -> consensus FASTA
   -> nucleotide variants and readable variant CSV table
   -> amino-acid variants for CDS-overlapping changes
-  -> curated genotype/lineage assignment
-  -> phylogenetic tree and visualization
+  -> curated genotype/lineage and wild/vaccine assignment
+  -> phylogenetic tree and visualization with wild/vaccine labels
   -> sample and batch PDF/HTML reports with plots
 ```
 
@@ -77,5 +78,5 @@ tree output and produces:
 
 Future report work should add per-sample coverage plots, batch coverage
 heatmaps, richer mutation tables, and rendered tree figures. The implementation
-should remain data-driven so reference annotations and lineage panels can be
-updated without rewriting report logic.
+should remain data-driven so reference annotations, lineage panels, and
+wild/vaccine source labels can be updated without rewriting report logic.

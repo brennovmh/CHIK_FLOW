@@ -14,6 +14,7 @@ process PHYLOGENY {
     output:
     path "chikflow.alignment.fasta", emit: alignment
     path "chikflow.distance_matrix.csv", emit: distances
+    path "chikflow.phylogeny_metadata.csv", emit: metadata
     path "chikflow.tree.nwk", emit: tree
     path "versions.yml", emit: versions
 
@@ -24,6 +25,7 @@ process PHYLOGENY {
         --reference "$reference" \
         --alignment chikflow.alignment.fasta \
         --distances chikflow.distance_matrix.csv \
+        --metadata chikflow.phylogeny_metadata.csv \
         --tree chikflow.tree.nwk
 
     cat > versions.yml <<-END_VERSIONS

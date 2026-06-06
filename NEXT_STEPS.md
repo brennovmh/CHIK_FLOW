@@ -34,7 +34,9 @@ python3 -m py_compile \
   bin/build_chikv_phylogeny.py \
   bin/calculate_gene_coverage.py \
   bin/render_chikflow_report.py \
+  bin/select_reference.py \
   bin/summarize_sample.py \
+  bin/validate_genotype_references.py \
   bin/validate_reference_panel.py \
   bin/validate_samplesheet.py \
   bin/vcf_to_aa_mutations.py \
@@ -67,8 +69,10 @@ Expected core outputs include:
 <outdir>/sample_1/variant_calling/sample_1.variants.csv
 <outdir>/sample_1/variant_calling/sample_1.aa_mutations.csv
 <outdir>/sample_1/genotyping/sample_1.genotype.csv
+<outdir>/sample_1/reference_selection/sample_1.reference_selection.csv
 <outdir>/sample_1/summary/sample_1.summary.csv
 <outdir>/batch_reports/sample_summary.csv
+<outdir>/batch_reports/phylogeny/chikflow.phylogeny_metadata.csv
 <outdir>/batch_reports/phylogeny/chikflow.tree.nwk
 <outdir>/batch_reports/chikflow_report.html
 <outdir>/batch_reports/chikflow_report.pdf
@@ -76,22 +80,21 @@ Expected core outputs include:
 
 ## Recommended Next Implementation
 
-1. Curate a CHIKV genotype/lineage reference FASTA.
-   - Include representative complete genomes for West African, Asian, ECSA,
-     and Indian Ocean lineage where appropriate.
-   - Use headers with machine-readable labels, for example:
-     `accession|genotype=ECSA|lineage=IOL|country=...|year=...`.
-   - Add a validator or fixture check so malformed genotype labels fail early.
+1. Expand and review the curated CHIKV genotype/reference FASTA.
+   - The initial panel includes West African, ECSA, IOL, Asian, and 181/25
+     vaccine-strain references.
+   - Add additional vaccine-like or outbreak references as they become
+     operationally relevant.
 
-2. Add best-reference selection before alignment.
-   - Compare reads or preliminary consensus against the curated panel.
-   - Emit the selected reference ID and selection metrics per sample.
-   - Route alignment and downstream annotation to the selected reference.
+2. Improve best-reference selection.
+   - The current implementation uses exact read k-mer matching.
+   - Next improvements should add minimum score thresholds and clearer
+     low-confidence reporting.
 
 3. Improve final reports.
    - Add per-sample coverage plots and batch coverage heatmaps.
    - Add richer mutation tables with gene/CDS context.
-   - Render the Newick tree into a report figure.
+   - Replace the current SVG summary with a publication-grade rendered tree.
 
 4. Expand automated validation.
    - Keep the focused CI smoke test fast.

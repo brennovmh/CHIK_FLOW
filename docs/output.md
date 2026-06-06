@@ -17,6 +17,7 @@
     ├── bam/
     ├── coverage/
     ├── genotyping/
+    ├── reference_selection/
     ├── summary/
     ├── variant_calling/
     ├── log/
@@ -63,22 +64,43 @@
 - `batch_reports/sample_summary.csv`
 - `batch_reports/chikflow_report.html`
 - `batch_reports/chikflow_report.pdf`
+- `batch_reports/chikflow_phylogeny.svg`
+
+The HTML report includes batch wild/vaccine source counts, alert tables,
+genotyping status/source tables, gene coverage plots, and a colored phylogeny.
+The PDF contains a compact text summary of the same key sections.
 
 ### Genotyping
 
 - `<sample_id>/genotyping/*.genotype.csv`
 
 The genotyping CSV reports the nearest reference, genotype, lineage, identity,
-distance, comparable bases, ambiguous bases, status, and notes. If
-`--genotype_references` is not provided, the pipeline falls back to
+wild/vaccine source, distance, comparable bases, ambiguous bases, status, and
+notes. If `--genotype_references` is not provided, the pipeline falls back to
 `--reference_fasta`; assignments from a single reference are marked in the note
-field as nearest-reference only.
+field as nearest-reference only. Wild/vaccine calls require reference FASTA
+headers with `source=wild` or `source=vaccine`; otherwise the source is reported
+as `unknown`.
+
+### Reference Selection
+
+- `<sample_id>/reference_selection/*.reference_selection.csv`
+
+The reference selection CSV reports k-mer scores for every candidate reference
+record and marks the selected record with `selected=true`. The selected FASTA
+record is used for alignment and consensus generation.
 
 ### Phylogeny
 
 - `batch_reports/phylogeny/chikflow.alignment.fasta`
 - `batch_reports/phylogeny/chikflow.distance_matrix.csv`
+- `batch_reports/phylogeny/chikflow.phylogeny_metadata.csv`
 - `batch_reports/phylogeny/chikflow.tree.nwk`
+
+The phylogeny metadata CSV reports each tree label, whether the record is a
+reference or sample, genotype, lineage, wild/vaccine source, nearest reference,
+distance, and comparable bases. Tree labels include the inferred source, for
+example `sample_1__source-wild` or `sample_1__source-vaccine`.
 
 ### Consensus and Variants
 
@@ -107,6 +129,8 @@ field as nearest-reference only.
 - `reference_panel/reference.fasta`
 - `reference_panel/reference.gff`
 - `reference_panel/reference_panel.csv`
+- `reference_panel/genotype_references.fasta`
+- `reference_panel/genotype_reference_panel.csv`
 
 ## Planned Output Additions
 

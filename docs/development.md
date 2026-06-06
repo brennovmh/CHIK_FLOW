@@ -11,11 +11,15 @@ python3 -m py_compile \
   bin/build_chikv_phylogeny.py \
   bin/calculate_gene_coverage.py \
   bin/render_chikflow_report.py \
+  bin/select_reference.py \
   bin/summarize_sample.py \
+  bin/validate_genotype_references.py \
   bin/validate_reference_panel.py \
   bin/validate_samplesheet.py \
   bin/vcf_to_aa_mutations.py \
   bin/vcf_to_table.py
+
+python3 tests/test_biological_regression.py
 
 python3 bin/validate_samplesheet.py \
   --input assets/samplesheet.csv \

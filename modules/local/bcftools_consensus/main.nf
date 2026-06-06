@@ -10,8 +10,7 @@ process BCFTOOLS_CONSENSUS {
     publishDir "${params.outdir}/${meta.id}/variant_calling", mode: params.publish_dir_mode, pattern: "*.vcf.gz*"
 
     input:
-    tuple val(meta), path(bam), path(bai), path(depth)
-    path reference_fasta
+    tuple val(meta), path(bam), path(bai), path(depth), path(reference_fasta)
 
     output:
     tuple val(meta), path("${meta.id}.consensus.fasta"), emit: consensus

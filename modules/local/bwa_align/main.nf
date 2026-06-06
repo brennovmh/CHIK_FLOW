@@ -6,8 +6,7 @@ process BWA_ALIGN {
     container "quay.io/biocontainers/bwa:0.7.18--he4a0461_1"
 
     input:
-    tuple val(meta), path(reads)
-    path reference_fasta
+    tuple val(meta), path(reads), path(reference_fasta)
 
     output:
     tuple val(meta), path("${meta.id}.sam"), emit: sam

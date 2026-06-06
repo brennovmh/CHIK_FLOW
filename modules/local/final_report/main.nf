@@ -11,10 +11,13 @@ process FINAL_REPORT {
     path sample_summary
     path genotypes
     path tree
+    path phylogeny_metadata
+    path gene_coverages
 
     output:
     path "chikflow_report.html", emit: html
     path "chikflow_report.pdf", emit: pdf
+    path "chikflow_phylogeny.svg", emit: phylogeny_svg
     path "versions.yml", emit: versions
 
     script:
@@ -23,8 +26,11 @@ process FINAL_REPORT {
         --sample-summary "$sample_summary" \
         --genotypes ${genotypes} \
         --tree "$tree" \
+        --phylogeny-metadata "$phylogeny_metadata" \
+        --gene-coverages ${gene_coverages} \
         --html chikflow_report.html \
-        --pdf chikflow_report.pdf
+        --pdf chikflow_report.pdf \
+        --phylogeny-svg chikflow_phylogeny.svg
 
     cat > versions.yml <<-END_VERSIONS
     "${task.process}":

@@ -19,7 +19,7 @@ workflow {
         Reference arguments:
           --reference_fasta  FASTA reference panel used by downstream CHIKV modules
           --reference_gff    Optional GFF annotation for reference panel records
-          --genotype_references  Optional FASTA with genotype/lineage labels in headers
+          --genotype_references  Optional FASTA with genotype, lineage, and source labels in headers
 
         Optional arguments:
           --skip_fastqc   Skip FastQC before and after trimming
