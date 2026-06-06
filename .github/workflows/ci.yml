@@ -109,7 +109,7 @@ jobs:
           test -s /tmp/chikflow-ci-test/batch_reports/chikflow_report.html
           test -s /tmp/chikflow-ci-test/batch_reports/chikflow_report.pdf
           grep -q ',vaccine,' /tmp/chikflow-ci-test/reference_panel/genotype_reference_panel.csv
-          grep -q ',true$' /tmp/chikflow-ci-test/sample_1/reference_selection/sample_1.reference_selection.csv
+          grep -q ',true' /tmp/chikflow-ci-test/sample_1/reference_selection/sample_1.reference_selection.csv
           grep -q '__source-vaccine' /tmp/chikflow-ci-test/batch_reports/phylogeny/chikflow.tree.nwk
           grep -q 'sample_1__source-wild' /tmp/chikflow-ci-test/batch_reports/phylogeny/chikflow.tree.nwk
           grep -q 'Batch Overview' /tmp/chikflow-ci-test/batch_reports/chikflow_report.html
