@@ -36,7 +36,7 @@ FASTQ
   -> per-gene coverage
   -> consensus FASTA
   -> nucleotide variants and readable variant CSV table
-  -> amino-acid variants by ORF/protein
+  -> amino-acid variants for CDS-overlapping changes
   -> genotype/lineage assignment
   -> phylogenetic tree
   -> sample and batch PDF/HTML reports

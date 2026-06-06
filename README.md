@@ -19,6 +19,7 @@ This repository currently contains the first executable foundation:
 - GFF-derived gene/CDS coverage summary
 - consensus FASTA with low-depth masking
 - nucleotide variant CSV table
+- amino-acid mutation CSV table for CDS-overlapping variants
 - per-sample CSV summary across mapping, coverage, consensus, and variants
 - organized per-sample output directories
 

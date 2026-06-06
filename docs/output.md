@@ -65,6 +65,7 @@
 - `<sample_id>/variant_calling/*.variants.vcf.gz`
 - `<sample_id>/variant_calling/*.variants.vcf.gz.csi`
 - `<sample_id>/variant_calling/*.variants.csv`
+- `<sample_id>/variant_calling/*.aa_mutations.csv`
 
 ### MultiQC
 
@@ -87,7 +88,6 @@
 
 ## Planned Output Additions
 
-- `<sample_id>/variant_calling/*.aa_mutations.csv`
 - `<sample_id>/genotyping/*.genotype.csv`
 - `<sample_id>/phylogeny_tree/*.tre`
 - `batch_reports/*.html`

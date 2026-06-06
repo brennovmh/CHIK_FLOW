@@ -14,6 +14,7 @@ include { BCFTOOLS_CONSENSUS } from '../modules/local/bcftools_consensus'
 include { GENE_COVERAGE      } from '../modules/local/gene_coverage'
 include { SAMPLE_SUMMARY     } from '../modules/local/sample_summary'
 include { VARIANT_TABLE      } from '../modules/local/variant_table'
+include { AA_MUTATIONS       } from '../modules/local/aa_mutations'
 
 workflow CHIKFLOW {
     main:
@@ -107,6 +108,11 @@ workflow CHIKFLOW {
 
             VARIANT_TABLE(BCFTOOLS_CONSENSUS.out.variants)
             ch_versions = ch_versions.mix(VARIANT_TABLE.out.versions)
+
+            if (reference_gff) {
+                AA_MUTATIONS(BCFTOOLS_CONSENSUS.out.variants, ch_reference_fasta, ch_reference_gff)
+                ch_versions = ch_versions.mix(AA_MUTATIONS.out.versions)
+            }
         }
 
         if (!params.skip_coverage && reference_gff) {
