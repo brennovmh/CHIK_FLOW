@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://raw.githubusercontent.com/brennovmh/CHIK_FLOW/main/nextflow_schema.json",
+  "$id": "https://raw.githubusercontent.com/brennovmh/ChikScan/main/nextflow_schema.json",
   "title": "ChikScan pipeline parameters",
   "description": "Nextflow pipeline for chikungunya virus sequencing analysis",
   "type": "object",
