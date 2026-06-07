@@ -56,6 +56,10 @@ def format_percent(value):
     return f"{clamp(value) * 100:.1f}%"
 
 
+def format_pdf_percent(value):
+    return f"{clamp(to_float(value)) * 100:.1f}%"
+
+
 def coverage_color(value):
     value = clamp(value)
     if value >= 0.95:
@@ -433,7 +437,7 @@ def genome_coverage_figure(sample_rows):
     label_width = max((text_width(row.get("sample_id", "")) for row in rows), default=0)
     left = max(230, min(460, label_width + 44))
     bar_width = 590
-    right_space = 190
+    right_space = 255
     width = max(980, left + bar_width + right_space)
     row_height = 32
     top = 52
@@ -442,7 +446,7 @@ def genome_coverage_figure(sample_rows):
         f'<svg class="coverage-figure" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {width} {height}" role="img" aria-label="Genome coverage breadth by sample">',
         f'<rect x="0" y="0" width="{width}" height="100%" rx="0" fill="#ffffff"/>',
         '<text x="24" y="25" class="svg-title">Genome breadth at 1x</text>',
-        f'<text x="{left + bar_width + 8}" y="25" class="svg-meta">0%  25%  50%  75%  100%</text>',
+        f'<text x="{left + bar_width + 14}" y="25" class="svg-meta">1x / 10x / mean</text>',
     ]
 
     for tick in range(0, 5):
@@ -462,7 +466,7 @@ def genome_coverage_figure(sample_rows):
                 f'<rect x="{left}" y="{y}" width="{bar_width * breadth_1x:.1f}" height="18" rx="4" fill="{fill}"/>',
                 f'<rect x="{left}" y="{y + 21}" width="{bar_width * breadth_10x:.1f}" height="4" rx="2" fill="#2b8a9f"/>',
                 f'<text x="{left + bar_width + 14}" y="{y + 14}" class="svg-label">{format_percent(breadth_1x)}</text>',
-                f'<text x="{left + bar_width + 82}" y="{y + 14}" class="svg-meta">10x {format_percent(breadth_10x)} | mean {mean_depth:.1f}x</text>',
+                f'<text x="{left + bar_width + 76}" y="{y + 14}" class="svg-meta">{format_percent(breadth_10x)} / {mean_depth:.0f}x</text>',
             ]
         )
 
@@ -487,23 +491,23 @@ def gene_coverage_heatmap(gene_rows):
     row_height = 32
     label_width = max((text_width(sample_id) for sample_id in samples), default=0)
     left = max(190, min(460, label_width + 44))
-    top = 88
+    top = 104
     width = max(980, left + cell_width * len(features) + 42)
-    height = top + row_height * len(samples) + 70
+    height = top + row_height * len(samples) + 60
     elements = [
         f'<svg class="coverage-figure coverage-heatmap" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {width} {height}" role="img" aria-label="Gene coverage breadth heatmap">',
         f'<rect x="0" y="0" width="{width}" height="100%" fill="#ffffff"/>',
         '<text x="24" y="25" class="svg-title">Gene coverage breadth at >=10x</text>',
-        '<text x="24" y="49" class="svg-meta">Rows are samples; E2 and E1 are shown first, followed by other annotated genomic features.</text>',
+        '<text x="24" y="49" class="svg-meta">E2 and E1 are shown first, followed by other annotated genomic features.</text>',
     ]
 
     legend = [(">=95%", "#057a55"), ("85-95%", "#2f9e44"), ("70-85%", "#f59f00"), ("50-70%", "#f08c00"), ("<50%", "#c92a2a")]
     for index, (label, color) in enumerate(legend):
-        x = width - 420 + index * 78
+        x = 24 + index * 78
         elements.extend(
             [
-                f'<rect x="{x}" y="18" width="14" height="14" rx="3" fill="{color}"/>',
-                f'<text x="{x + 19}" y="30" class="svg-meta">{html.escape(label)}</text>',
+                f'<rect x="{x}" y="64" width="14" height="14" rx="3" fill="{color}"/>',
+                f'<text x="{x + 19}" y="76" class="svg-meta">{html.escape(label)}</text>',
             ]
         )
 
@@ -511,7 +515,7 @@ def gene_coverage_heatmap(gene_rows):
         x = left + col * cell_width + cell_width / 2
         label = display_feature_name(row)[:18]
         elements.append(
-            f'<text x="{x:.1f}" y="76" class="svg-meta rotated" transform="rotate(-35 {x:.1f} 76)">{html.escape(label)}</text>'
+            f'<text x="{x:.1f}" y="94" class="svg-meta rotated" transform="rotate(-35 {x:.1f} 94)">{html.escape(label)}</text>'
         )
 
     for row_index, sample_id in enumerate(samples):
@@ -654,55 +658,201 @@ def pdf_escape(value):
     return value.replace("\\", "\\\\").replace("(", "\\(").replace(")", "\\)")
 
 
-def wrap_pdf_lines(lines, width=92):
-    wrapped = []
-    for line in lines:
-        line = str(line)
-        if not line:
-            wrapped.append("")
-            continue
-        while len(line) > width:
-            split_at = line.rfind(" ", 0, width)
-            if split_at <= 0:
-                split_at = width
-            wrapped.append(line[:split_at])
-            line = line[split_at:].lstrip()
-        wrapped.append(line)
-    return wrapped
+def pdf_rgb(color):
+    color = color.lstrip("#")
+    red = int(color[0:2], 16) / 255
+    green = int(color[2:4], 16) / 255
+    blue = int(color[4:6], 16) / 255
+    return f"{red:.3f} {green:.3f} {blue:.3f}"
 
 
-def pdf_page_object(lines):
-    commands = ["BT", "/F1 10 Tf", "50 790 Td"]
-    for index, line in enumerate(lines):
-        if index:
-            commands.append("0 -14 Td")
-        commands.append(f"({pdf_escape(line)}) Tj")
-    commands.append("ET")
-    return "\n".join(commands).encode()
+def pdf_text(x, y, text, size=10, font="F1", color="#152331"):
+    safe = pdf_escape(str(text))
+    return f"BT /{font} {size} Tf {pdf_rgb(color)} rg {x:.1f} {y:.1f} Td ({safe}) Tj ET"
 
 
-def write_pdf(output, lines):
-    text_lines = wrap_pdf_lines(lines)
-    page_line_count = 52
-    pages = [text_lines[index:index + page_line_count] for index in range(0, len(text_lines), page_line_count)] or [["ChikScan Report"]]
+def pdf_rect(x, y, width, height, color):
+    return f"q {pdf_rgb(color)} rg {x:.1f} {y:.1f} {width:.1f} {height:.1f} re f Q"
+
+
+def pdf_line(x1, y1, x2, y2, color="#d8e0e8", width=1):
+    return f"q {pdf_rgb(color)} RG {width:.1f} w {x1:.1f} {y1:.1f} m {x2:.1f} {y2:.1f} l S Q"
+
+
+def wrap_text(text, max_chars):
+    words = str(text).split()
+    if not words:
+        return [""]
+    lines = []
+    current = words[0]
+    for word in words[1:]:
+        if len(current) + len(word) + 1 > max_chars:
+            lines.append(current)
+            current = word
+        else:
+            current += " " + word
+    lines.append(current)
+    return lines
+
+
+def pdf_short_sample_id(sample_id, limit=34):
+    sample_id = str(sample_id or "")
+    if len(sample_id) <= limit:
+        return sample_id
+    return sample_id[: limit - 3] + "..."
+
+
+def genotype_by_sample(genotype_rows):
+    return {row.get("sample_id", ""): row for row in genotype_rows}
+
+
+def key_gene_rows(gene_rows):
+    wanted = {"E2", "E1", "CHIKVgp1", "CHIKVgp2"}
+    rows = [row for row in gene_rows if row.get("feature_name") in wanted]
+    return sorted(rows, key=lambda row: (row.get("sample_id", ""), feature_sort_key(row)))
+
+
+def build_pdf_pages(sample_rows, genotype_rows, gene_rows, alerts, findings, generated_at):
+    pages = []
+    current = []
+    y = 744
+
+    def add_page():
+        nonlocal current, y
+        current = [
+            pdf_rect(0, 0, 612, 792, "#ffffff"),
+            pdf_rect(0, 760, 612, 32, "#0f766e"),
+            pdf_text(40, 771, "ChikScan", 15, "F2", "#ffffff"),
+        ]
+        y = 730
+        pages.append(current)
+
+    def ensure(space):
+        nonlocal y
+        if y - space < 48:
+            add_page()
+
+    def heading(text):
+        nonlocal y
+        y -= 14
+        ensure(38)
+        current.append(pdf_text(40, y, text, 15, "F2"))
+        current.append(pdf_line(40, y - 8, 572, y - 8))
+        y -= 28
+
+    def paragraph(text, size=10, color="#152331", max_chars=86, leading=13):
+        nonlocal y
+        for line in wrap_text(text, max_chars):
+            ensure(leading + 2)
+            current.append(pdf_text(48, y, line, size, "F1", color))
+            y -= leading
+
+    add_page()
+    current.append(pdf_text(40, y, "ChikScan Batch Report", 24, "F2"))
+    current.append(pdf_text(40, y - 22, "Chikungunya sequencing surveillance", 11, "F1", "#5f6f7f"))
+    current.append(pdf_text(40, y - 38, f"Generated {generated_at}", 9, "F1", "#5f6f7f"))
+    y -= 72
+
+    counts = source_summary(genotype_rows)
+    cards = [
+        ("Samples", len(sample_rows), "#0f766e"),
+        ("Wild-like", counts["wild"], SOURCE_COLORS["wild"]),
+        ("Vaccine-like", counts["vaccine"], SOURCE_COLORS["vaccine"]),
+        ("Unknown", counts["unknown"], SOURCE_COLORS["unknown"]),
+        ("Alerts", len(alerts), "#ba3a20" if alerts else "#52606d"),
+    ]
+    card_width = 96
+    for index, (label, value, color) in enumerate(cards):
+        x = 40 + index * 106
+        current.append(pdf_rect(x, y - 48, card_width, 48, "#f7f9fb"))
+        current.append(pdf_rect(x, y - 48, 5, 48, color))
+        current.append(pdf_text(x + 12, y - 18, label, 8, "F2", "#5f6f7f"))
+        current.append(pdf_text(x + 12, y - 39, value, 18, "F2"))
+    y -= 78
+
+    heading("Executive Interpretation")
+    for finding in findings[:5]:
+        paragraph("- " + finding, max_chars=84)
+    if len(findings) > 5:
+        paragraph(f"- {len(findings) - 5} additional interpretation note(s) omitted from this compact PDF.", color="#5f6f7f")
+
+    heading("Sample Results")
+    genotype_lookup = genotype_by_sample(genotype_rows)
+    current.append(pdf_rect(40, y - 17, 532, 19, "#e7f1f2"))
+    headers = [("Sample", 44), ("Source", 238), ("Genotype", 306), ("Genome 1x", 382), ("Genome 10x", 454), ("Mean", 526)]
+    for label, x in headers:
+        current.append(pdf_text(x, y - 11, label, 8, "F2", "#243746"))
+    y -= 27
+    for row in sorted(sample_rows, key=lambda item: item.get("sample_id", ""))[:18]:
+        ensure(22)
+        genotype = genotype_lookup.get(row.get("sample_id", ""), {})
+        current.append(pdf_line(40, y + 6, 572, y + 6, "#eef2f6", 0.8))
+        current.append(pdf_text(44, y - 6, pdf_short_sample_id(row.get("sample_id", "")), 8))
+        current.append(pdf_text(238, y - 6, genotype.get("source", "unknown"), 8))
+        current.append(pdf_text(306, y - 6, genotype.get("genotype", "unclassified"), 8))
+        current.append(pdf_text(382, y - 6, format_pdf_percent(row.get("genome_breadth_1x", "")), 8))
+        current.append(pdf_text(454, y - 6, format_pdf_percent(row.get("genome_breadth_10x", "")), 8))
+        current.append(pdf_text(526, y - 6, f"{to_float(row.get('genome_mean_depth', '')):.0f}x", 8))
+        y -= 20
+    if len(sample_rows) > 18:
+        paragraph(f"{len(sample_rows) - 18} additional sample(s) omitted from compact PDF. See HTML/CSV outputs for full tables.", color="#5f6f7f")
+
+    heading("E1/E2 Coverage At >=10x")
+    key_rows = key_gene_rows(gene_rows)
+    if key_rows:
+        current.append(pdf_rect(40, y - 17, 532, 19, "#e7f1f2"))
+        headers = [("Sample", 44), ("Feature", 250), ("10x breadth", 336), ("Mean depth", 430), ("Min depth", 516)]
+        for label, x in headers:
+            current.append(pdf_text(x, y - 11, label, 8, "F2", "#243746"))
+        y -= 27
+        for row in key_rows[:24]:
+            ensure(22)
+            current.append(pdf_line(40, y + 6, 572, y + 6, "#eef2f6", 0.8))
+            current.append(pdf_text(44, y - 6, pdf_short_sample_id(row.get("sample_id", "")), 8))
+            current.append(pdf_text(250, y - 6, display_feature_name(row), 8))
+            current.append(pdf_text(336, y - 6, format_pdf_percent(row.get("breadth_10x", "")), 8))
+            current.append(pdf_text(430, y - 6, f"{to_float(row.get('mean_depth', '')):.0f}x", 8))
+            current.append(pdf_text(516, y - 6, f"{to_float(row.get('min_depth', '')):.0f}x", 8))
+            y -= 20
+    else:
+        paragraph("No gene/domain coverage rows were available for PDF summary.", color="#5f6f7f")
+
+    if alerts:
+        heading("Alerts")
+        for alert in alerts[:10]:
+            paragraph(
+                "{sample_id}: {type} / {severity} - {message}".format(**alert),
+                color="#8a1c0a",
+                max_chars=82,
+            )
+        if len(alerts) > 10:
+            paragraph(f"{len(alerts) - 10} additional alert(s) omitted from compact PDF.", color="#5f6f7f")
+
+    heading("Notes")
+    paragraph("This compact PDF intentionally omits raw Newick strings, full metadata tables, and exhaustive CSV fields. Use the HTML report and CSV outputs for audit-level detail.", color="#5f6f7f")
+    return pages
+
+
+def write_pdf(output, sample_rows, genotype_rows, gene_rows, alerts, findings, generated_at):
+    page_streams = ["\n".join(page).encode() for page in build_pdf_pages(sample_rows, genotype_rows, gene_rows, alerts, findings, generated_at)]
 
     objects = []
     objects.append(b"<< /Type /Catalog /Pages 2 0 R >>")
     page_object_numbers = []
     content_object_numbers = []
-    next_object = 4
-    for _page in pages:
+    next_object = 5
+    for _page in page_streams:
         page_object_numbers.append(next_object)
         content_object_numbers.append(next_object + 1)
         next_object += 2
     kids = " ".join(f"{number} 0 R" for number in page_object_numbers).encode()
-    objects.append(b"<< /Type /Pages /Kids [" + kids + b"] /Count " + str(len(pages)).encode() + b" >>")
+    objects.append(b"<< /Type /Pages /Kids [" + kids + b"] /Count " + str(len(page_streams)).encode() + b" >>")
     objects.append(b"<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>")
-    for page_number, page_lines in enumerate(pages, start=1):
-        stream = pdf_page_object(page_lines)
+    objects.append(b"<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold >>")
+    for page_number, stream in enumerate(page_streams, start=1):
         content_number = content_object_numbers[page_number - 1]
         objects.append(
-            f"<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 3 0 R >> >> /Contents {content_number} 0 R >>".encode()
+            f"<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 3 0 R /F2 4 0 R >> >> /Contents {content_number} 0 R >>".encode()
         )
         objects.append(b"<< /Length " + str(len(stream)).encode() + b" >>\nstream\n" + stream + b"\nendstream")
 
@@ -748,58 +898,8 @@ def main():
     alerts = alert_rows(sample_rows, genotype_rows)
     findings = report_findings(sample_rows, genotype_rows, alerts)
     write_html(args.html, sample_rows, genotype_rows, tree, phylogeny_rows, gene_rows, args.phylogeny_svg, args.logo)
-
-    lines = ["ChikScan Report", "Chikungunya sequencing surveillance", ""]
-    lines.extend(["Automated Interpretation"])
-    for finding in findings:
-        lines.append(f"- {finding}")
-    lines.extend(["", "Batch Overview"])
-    counts = source_summary(genotype_rows)
-    lines.append(
-        f"samples={len(sample_rows)}, wild={counts['wild']}, vaccine={counts['vaccine']}, unknown={counts['unknown']}, alerts={len(alerts)}"
-    )
-    lines.extend(["", "Alerts"])
-    for row in alerts:
-        lines.append(", ".join(f"{key}={value}" for key, value in row.items()))
-    lines.extend(["", "Coverage"])
-    for row in sorted(sample_rows, key=lambda item: item.get("sample_id", "")):
-        lines.append(
-            "{sample_id}: genome 1x={breadth_1x}, genome 10x={breadth_10x}, mean depth={mean_depth}, consensus N={n_fraction}".format(
-                sample_id=row.get("sample_id", ""),
-                breadth_1x=format_percent(to_float(row.get("genome_breadth_1x", ""))),
-                breadth_10x=format_percent(to_float(row.get("genome_breadth_10x", ""))),
-                mean_depth=row.get("genome_mean_depth", ""),
-                n_fraction=format_percent(to_float(row.get("consensus_n_fraction", ""))),
-            )
-        )
-    for row in sorted(gene_rows, key=lambda item: (item.get("sample_id", ""), feature_sort_key(item))):
-        lines.append(
-            "{sample_id} | {feature}: 1x={breadth_1x}, 10x={breadth_10x}, mean={mean_depth}".format(
-                sample_id=row.get("sample_id", ""),
-                feature=row.get("feature_name") or row.get("feature_id") or "feature",
-                breadth_1x=format_percent(to_float(row.get("breadth_1x", ""))),
-                breadth_10x=format_percent(to_float(row.get("breadth_10x", ""))),
-                mean_depth=row.get("mean_depth", ""),
-            )
-        )
-    lines.extend(["", "Sample Summary"])
-    for row in sample_rows:
-        lines.append(", ".join(f"{key}={value}" for key, value in row.items()))
-    lines.extend(["", "Genotyping"])
-    for row in genotype_rows:
-        lines.append(", ".join(f"{key}={value}" for key, value in row.items()))
-    lines.extend(["", "Phylogeny"])
-    for row in phylogeny_rows:
-        lines.append(
-            "{tree_label}: source={source}, genotype={genotype}, lineage={lineage}".format(
-                tree_label=row.get("tree_label", ""),
-                source=row.get("source", ""),
-                genotype=row.get("genotype", ""),
-                lineage=row.get("lineage", ""),
-            )
-        )
-    lines.extend(["", "Newick", tree or "No tree available."])
-    write_pdf(args.pdf, lines)
+    generated_at = datetime.now(UTC).strftime("%Y-%m-%d %H:%M UTC")
+    write_pdf(args.pdf, sample_rows, genotype_rows, gene_rows, alerts, findings, generated_at)
 
 
 if __name__ == "__main__":

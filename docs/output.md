@@ -69,8 +69,10 @@
 The HTML report includes the ChikScan logo, batch wild/vaccine source counts,
 automated interpretation notes, alert tables, genotyping status/source tables,
 genome coverage bars, gene/domain coverage heatmaps at >=10x with explicit
-E2 and E1 columns when annotated, and a colored phylogeny. The PDF
-contains a compact text summary of the same key sections.
+E2 and E1 columns when annotated, and a colored phylogeny. The PDF is a compact
+executive report with batch counts, interpretation notes, sample-level
+genotype/coverage, and E1/E2 coverage highlights; exhaustive CSV fields,
+Newick strings, and full metadata tables remain in the HTML/CSV outputs.
 
 ### Genotyping
 
