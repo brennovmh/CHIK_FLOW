@@ -1,6 +1,6 @@
 # Citations
 
-CHIK-FLOW currently uses or plans to use the following tools:
+ChikScan currently uses or plans to use the following tools:
 
 - Nextflow
 - FastQC

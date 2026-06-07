@@ -2,12 +2,12 @@
 
 nextflow.enable.dsl = 2
 
-include { CHIKFLOW } from './workflows/chikflow'
+include { CHIKSCAN } from './workflows/chikscan'
 
 workflow {
     if (params.help) {
         log.info """
-        CHIK-FLOW
+        ChikScan
 
         Usage:
           nextflow run . --input samplesheet.csv --outdir results -profile docker
@@ -47,5 +47,5 @@ workflow {
         error "Missing required parameter: --reference_fasta"
     }
 
-    CHIKFLOW()
+    CHIKSCAN()
 }

@@ -576,16 +576,16 @@ def write_html(output, sample_rows, genotype_rows, tree, phylogeny_rows, gene_ro
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <title>CHIK-FLOW Report</title>
+  <title>ChikScan Report</title>
   <style>{css}</style>
 </head>
 <body>
   <main>
     <header class="report-header">
-      <img class="report-logo" src="{logo_src}" alt="CHIKscan logo">
+      <img class="report-logo" src="{logo_src}" alt="ChikScan logo">
       <div>
         <p class="eyebrow">Chikungunya sequencing surveillance</p>
-        <h1>CHIK-FLOW Report</h1>
+        <h1>ChikScan Report</h1>
         <p class="report-meta">Automated batch report generated from pipeline CSV outputs. Generated {generated_at}.</p>
       </div>
     </header>
@@ -658,7 +658,7 @@ def pdf_page_object(lines):
 def write_pdf(output, lines):
     text_lines = wrap_pdf_lines(lines)
     page_line_count = 52
-    pages = [text_lines[index:index + page_line_count] for index in range(0, len(text_lines), page_line_count)] or [["CHIK-FLOW Report"]]
+    pages = [text_lines[index:index + page_line_count] for index in range(0, len(text_lines), page_line_count)] or [["ChikScan Report"]]
 
     objects = []
     objects.append(b"<< /Type /Catalog /Pages 2 0 R >>")
@@ -723,7 +723,7 @@ def main():
     findings = report_findings(sample_rows, genotype_rows, alerts)
     write_html(args.html, sample_rows, genotype_rows, tree, phylogeny_rows, gene_rows, args.phylogeny_svg, args.logo)
 
-    lines = ["CHIK-FLOW Report", "Chikungunya sequencing surveillance", ""]
+    lines = ["ChikScan Report", "Chikungunya sequencing surveillance", ""]
     lines.extend(["Automated Interpretation"])
     for finding in findings:
         lines.append(f"- {finding}")

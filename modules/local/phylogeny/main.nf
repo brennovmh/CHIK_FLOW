@@ -12,10 +12,10 @@ process PHYLOGENY {
     path reference
 
     output:
-    path "chikflow.alignment.fasta", emit: alignment
-    path "chikflow.distance_matrix.csv", emit: distances
-    path "chikflow.phylogeny_metadata.csv", emit: metadata
-    path "chikflow.tree.nwk", emit: tree
+    path "chikscan.alignment.fasta", emit: alignment
+    path "chikscan.distance_matrix.csv", emit: distances
+    path "chikscan.phylogeny_metadata.csv", emit: metadata
+    path "chikscan.tree.nwk", emit: tree
     path "versions.yml", emit: versions
 
     script:
@@ -23,10 +23,10 @@ process PHYLOGENY {
     build_chikv_phylogeny.py \
         --consensus ${consensuses} \
         --reference "$reference" \
-        --alignment chikflow.alignment.fasta \
-        --distances chikflow.distance_matrix.csv \
-        --metadata chikflow.phylogeny_metadata.csv \
-        --tree chikflow.tree.nwk
+        --alignment chikscan.alignment.fasta \
+        --distances chikscan.distance_matrix.csv \
+        --metadata chikscan.phylogeny_metadata.csv \
+        --tree chikscan.tree.nwk
 
     cat > versions.yml <<-END_VERSIONS
     "${task.process}":

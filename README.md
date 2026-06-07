@@ -1,16 +1,13 @@
-<img width="220" alt="CHIKscan" src="assets/report/chikscan_logo.png" />
+<img width="220" alt="ChikScan" src="assets/report/chikscan_logo.png" />
 
+# ChikScan
 
+ChikScan is a Nextflow DSL2 pipeline for chikungunya virus (CHIKV) sequencing
+analysis. It processes raw FASTQ files into QC outputs, alignments, coverage
+summaries, consensus sequences, variant tables, genotype/source calls,
+phylogeny files, and batch HTML/PDF reports.
 
-
-# CHIK-FLOW
-
-CHIK-FLOW is a Nextflow DSL2 pipeline scaffold for chikungunya virus (CHIKV)
-sequencing analysis. The goal is to provide a RSVrecon-level workflow for raw
-FASTQ processing, coverage/depth reporting, consensus generation, genotyping,
-phylogeny, and PDF/HTML reporting.
-
-This repository currently contains the first executable foundation:
+The pipeline currently includes:
 
 - samplesheet validation
 - optional merge of multiple lanes per sample
@@ -29,19 +26,17 @@ This repository currently contains the first executable foundation:
 - batch-level sample summary CSV
 - nearest-reference CHIKV genotype/lineage CSV
 - batch consensus distance matrix and UPGMA Newick tree
-- batch HTML and PDF report
+- professional batch HTML and PDF reports with coverage plots, source counts,
+  alerts, interpretation notes, and phylogeny rendering
 - organized per-sample output directories
 
-## Planned Scope
+## Current Focus
 
-- CHIKV reference selection against a curated reference panel
-- reference selection and alignment to best matched reference
-- per-base depth and genome/gene coverage reports
-- consensus FASTA with configurable masking thresholds
-- nucleotide and amino-acid variant reporting
-- expanded curated CHIKV genotype reference panels
-- publication-grade phylogenetic tree rendering
-- richer sample-level report pages and plots
+- Expand and curate the CHIKV genotype/source reference panel.
+- Improve publication-grade phylogeny rendering.
+- Add richer per-sample report pages and longitudinal/batch comparison plots.
+- Harden automated biological regression tests around known wild/vaccine
+  examples.
 
 ## Input
 
@@ -56,9 +51,24 @@ sample_2,/path/sample_2_R1.fastq.gz,/path/sample_2_R2.fastq.gz
 For single-end data, leave `fastq_2` empty.
 
 If a sample has multiple lanes, add one row per lane with the same `sample`
-name. CHIK-FLOW will merge them before analysis.
+name. ChikScan will merge them before analysis.
 
 ## Run
+
+```bash
+nextflow run . \
+  -profile docker \
+  --input samplesheet.csv \
+  --outdir results
+```
+
+ChikScan ships with default reference assets:
+
+- `assets/reference/NC_004162.2.fasta`
+- `assets/reference/NC_004162.2.gff`
+- `assets/reference/chikv_genotype_references.fasta`
+
+You can override them when needed:
 
 ```bash
 nextflow run . \
@@ -70,10 +80,8 @@ nextflow run . \
   --genotype_references references/chikv_genotypes.fasta
 ```
 
-`--genotype_references` is optional. When omitted, CHIK-FLOW uses
-`--reference_fasta` as a fallback for nearest-reference comparison. For
-surveillance-grade genotype and wild/vaccine calls, provide a curated
-multi-record FASTA whose headers include labels such as
+For surveillance-grade genotype and wild/vaccine calls, use a curated
+multi-record genotype FASTA whose headers include labels such as
 `|genotype=ECSA|lineage=IOL|source=wild` or
 `|genotype=Asian|lineage=vaccine-strain|source=vaccine`.
 An initial curated panel is provided at
@@ -134,17 +142,17 @@ Batch reports include:
 
 ```text
 batch_reports/sample_summary.csv
-batch_reports/chikflow_report.html
-batch_reports/chikflow_report.pdf
-batch_reports/chikflow_phylogeny.svg
-batch_reports/phylogeny/chikflow.alignment.fasta
-batch_reports/phylogeny/chikflow.distance_matrix.csv
-batch_reports/phylogeny/chikflow.phylogeny_metadata.csv
-batch_reports/phylogeny/chikflow.tree.nwk
+batch_reports/chikscan_report.html
+batch_reports/chikscan_report.pdf
+batch_reports/chikscan_phylogeny.svg
+batch_reports/phylogeny/chikscan.alignment.fasta
+batch_reports/phylogeny/chikscan.distance_matrix.csv
+batch_reports/phylogeny/chikscan.phylogeny_metadata.csv
+batch_reports/phylogeny/chikscan.tree.nwk
 ```
 
 ## Development Status
 
-This is an executable development pipeline. Genotype and wild/vaccine source
-assignment are implemented as nearest-reference comparisons and are only as
-complete as the supplied curated genotype FASTA.
+ChikScan is an executable development pipeline. Genotype and wild/vaccine
+source assignment are implemented as nearest-reference comparisons and are only
+as complete as the supplied curated genotype FASTA.

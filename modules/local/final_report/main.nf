@@ -16,23 +16,23 @@ process FINAL_REPORT {
     path logo
 
     output:
-    path "chikflow_report.html", emit: html
-    path "chikflow_report.pdf", emit: pdf
-    path "chikflow_phylogeny.svg", emit: phylogeny_svg
+    path "chikscan_report.html", emit: html
+    path "chikscan_report.pdf", emit: pdf
+    path "chikscan_phylogeny.svg", emit: phylogeny_svg
     path "versions.yml", emit: versions
 
     script:
     """
-    render_chikflow_report.py \
+    render_chikscan_report.py \
         --sample-summary "$sample_summary" \
         --genotypes ${genotypes} \
         --tree "$tree" \
         --phylogeny-metadata "$phylogeny_metadata" \
         --gene-coverages ${gene_coverages} \
         --logo "$logo" \
-        --html chikflow_report.html \
-        --pdf chikflow_report.pdf \
-        --phylogeny-svg chikflow_phylogeny.svg
+        --html chikscan_report.html \
+        --pdf chikscan_report.pdf \
+        --phylogeny-svg chikscan_phylogeny.svg
 
     cat > versions.yml <<-END_VERSIONS
     "${task.process}":

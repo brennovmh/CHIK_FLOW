@@ -1,4 +1,4 @@
-# CHIK-FLOW Output
+# ChikScan Output
 
 ## Current Output Structure
 
@@ -62,11 +62,11 @@
 
 - `<sample_id>/summary/*.summary.csv`
 - `batch_reports/sample_summary.csv`
-- `batch_reports/chikflow_report.html`
-- `batch_reports/chikflow_report.pdf`
-- `batch_reports/chikflow_phylogeny.svg`
+- `batch_reports/chikscan_report.html`
+- `batch_reports/chikscan_report.pdf`
+- `batch_reports/chikscan_phylogeny.svg`
 
-The HTML report includes the CHIKscan logo, batch wild/vaccine source counts,
+The HTML report includes the ChikScan logo, batch wild/vaccine source counts,
 automated interpretation notes, alert tables, genotyping status/source tables,
 genome coverage bars, gene coverage heatmaps, and a colored phylogeny. The PDF
 contains a compact text summary of the same key sections.
@@ -93,10 +93,10 @@ record is used for alignment and consensus generation.
 
 ### Phylogeny
 
-- `batch_reports/phylogeny/chikflow.alignment.fasta`
-- `batch_reports/phylogeny/chikflow.distance_matrix.csv`
-- `batch_reports/phylogeny/chikflow.phylogeny_metadata.csv`
-- `batch_reports/phylogeny/chikflow.tree.nwk`
+- `batch_reports/phylogeny/chikscan.alignment.fasta`
+- `batch_reports/phylogeny/chikscan.distance_matrix.csv`
+- `batch_reports/phylogeny/chikscan.phylogeny_metadata.csv`
+- `batch_reports/phylogeny/chikscan.tree.nwk`
 
 The phylogeny metadata CSV reports each tree label, whether the record is a
 reference or sample, genotype, lineage, wild/vaccine source, nearest reference,

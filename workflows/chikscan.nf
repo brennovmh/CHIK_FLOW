@@ -22,7 +22,7 @@ include { GENOTYPE           } from '../modules/local/genotype'
 include { PHYLOGENY          } from '../modules/local/phylogeny'
 include { FINAL_REPORT       } from '../modules/local/final_report'
 
-workflow CHIKFLOW {
+workflow CHIKSCAN {
     main:
     ch_versions = Channel.empty()
 

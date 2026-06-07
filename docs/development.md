@@ -10,7 +10,7 @@ python3 -m py_compile \
   bin/assign_chikv_genotype.py \
   bin/build_chikv_phylogeny.py \
   bin/calculate_gene_coverage.py \
-  bin/render_chikflow_report.py \
+  bin/render_chikscan_report.py \
   bin/select_reference.py \
   bin/summarize_sample.py \
   bin/validate_genotype_references.py \
@@ -23,22 +23,22 @@ python3 tests/test_biological_regression.py
 
 python3 bin/validate_samplesheet.py \
   --input assets/samplesheet.csv \
-  --output /tmp/chikflow_validated_samplesheet.csv
+  --output /tmp/chikscan_validated_samplesheet.csv
 
 python3 bin/validate_reference_panel.py \
   --fasta assets/reference/NC_004162.2.fasta \
   --gff assets/reference/NC_004162.2.gff \
-  --output /tmp/chikflow_reference_panel.csv
+  --output /tmp/chikscan_reference_panel.csv
 
-python3 bin/render_chikflow_report.py \
+python3 bin/render_chikscan_report.py \
   --sample-summary <sample_summary.csv> \
   --genotypes <genotype.csv> \
   --tree <tree.nwk> \
   --phylogeny-metadata <phylogeny_metadata.csv> \
   --gene-coverages <gene_coverage.csv> \
   --logo assets/report/chikscan_logo.png \
-  --html /tmp/chikflow_report.html \
-  --pdf /tmp/chikflow_report.pdf
+  --html /tmp/chikscan_report.html \
+  --pdf /tmp/chikscan_report.pdf
 
 nextflow run . --help
 ```
@@ -48,7 +48,7 @@ Run the focused Docker smoke test:
 ```bash
 nextflow run . \
   -profile test,docker \
-  --outdir /tmp/chikflow-ci-test \
+  --outdir /tmp/chikscan-ci-test \
   --skip_fastqc \
   --skip_fastp \
   --skip_multiqc \

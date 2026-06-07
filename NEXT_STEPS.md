@@ -1,4 +1,4 @@
-# CHIK-FLOW Next Steps
+# ChikScan Next Steps
 
 ## Current State
 
@@ -33,7 +33,7 @@ python3 -m py_compile \
   bin/assign_chikv_genotype.py \
   bin/build_chikv_phylogeny.py \
   bin/calculate_gene_coverage.py \
-  bin/render_chikflow_report.py \
+  bin/render_chikscan_report.py \
   bin/select_reference.py \
   bin/summarize_sample.py \
   bin/validate_genotype_references.py \
@@ -50,7 +50,7 @@ Focused Docker smoke test:
 ```bash
 nextflow run . \
   -profile test,docker \
-  --outdir /tmp/chikflow-ci-test \
+  --outdir /tmp/chikscan-ci-test \
   --skip_fastqc \
   --skip_fastp \
   --skip_multiqc \
@@ -72,10 +72,10 @@ Expected core outputs include:
 <outdir>/sample_1/reference_selection/sample_1.reference_selection.csv
 <outdir>/sample_1/summary/sample_1.summary.csv
 <outdir>/batch_reports/sample_summary.csv
-<outdir>/batch_reports/phylogeny/chikflow.phylogeny_metadata.csv
-<outdir>/batch_reports/phylogeny/chikflow.tree.nwk
-<outdir>/batch_reports/chikflow_report.html
-<outdir>/batch_reports/chikflow_report.pdf
+<outdir>/batch_reports/phylogeny/chikscan.phylogeny_metadata.csv
+<outdir>/batch_reports/phylogeny/chikscan.tree.nwk
+<outdir>/batch_reports/chikscan_report.html
+<outdir>/batch_reports/chikscan_report.pdf
 ```
 
 ## Recommended Next Implementation

@@ -1,6 +1,6 @@
-# CHIK-FLOW Architecture
+# ChikScan Architecture
 
-CHIK-FLOW follows a Nextflow DSL2 structure inspired by nf-core and RSVrecon.
+ChikScan follows a Nextflow DSL2 structure inspired by nf-core and RSVrecon.
 The first milestone is a clean executable foundation. CHIKV-specific
 interpretation will be added as separate modules with test data.
 
