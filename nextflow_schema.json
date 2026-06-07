@@ -22,20 +22,20 @@
         "reference_fasta": {
           "type": "string",
           "format": "file-path",
-          "description": "FASTA reference panel used by downstream CHIKV modules."
+          "description": "FASTA reference panel used by downstream CHIKV modules. Defaults to the bundled NC_004162.2 reference."
         },
         "reference_gff": {
           "type": "string",
           "format": "file-path",
-          "description": "Optional GFF annotation for reference panel records."
+          "description": "Optional GFF annotation for reference panel records. Defaults to the bundled NC_004162.2 annotation."
         },
         "genotype_references": {
           "type": "string",
           "format": "file-path",
-          "description": "Optional curated FASTA for nearest-reference genotype/lineage and wild/vaccine source assignment. Headers must include genotype=, lineage=, and source=wild or source=vaccine labels."
+          "description": "Optional curated FASTA for nearest-reference genotype/lineage and wild/vaccine source assignment. Defaults to the bundled CHIKV genotype panel. Headers must include genotype=, lineage=, and source=wild or source=vaccine labels."
         }
       },
-      "required": ["input", "outdir", "reference_fasta"]
+      "required": ["input", "outdir"]
     },
     "skip_options": {
       "title": "Process skipping options",
